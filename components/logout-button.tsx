@@ -7,7 +7,7 @@ function LogoutButton() {
   //   const handleClick = async () => {
   //     await signOut();
   //   };
-  return <Button onClick={() => signOut({ callbackUrl: "/sign-in" })}>LogOut</Button>;
+  return <Button onClick={() => signOut({ callbackUrl: "/sign-in" })}>Cerrar Sesión</Button>;
 }
 
 export default LogoutButton;

@@ -16,16 +16,25 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 import { FileUpload } from "./file-upload";
 import { File, X } from "lucide-react";
 import { RegisterAction } from "@/actions/auth-actions";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
+import Modal from "./Modal";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 function FormRegister() {
-  const route = useRouter();
+  const router = useRouter();
+
+  const { data: session, status } = useSession();
+
+  // const route = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const [isModal, setIsModal] = useState(false);
 
   const form = useForm<z.infer<typeof RegisterSchema>>({
     resolver: zodResolver(RegisterSchema),
@@ -74,9 +83,14 @@ function FormRegister() {
         console.log(response);
         if (response.error) {
           setError(response.error);
-        } else {
-          window.location.href = "/admin";
         }
+        setIsModal(!isModal);
+
+        if (isModal === false) {
+          window.location.href = "/sign-in";
+        }
+
+      
       });
     } catch (error) {
       console.error("Error al crear el usuario:", error);
@@ -85,7 +99,12 @@ function FormRegister() {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen ">
+    <div
+      className={cn(
+        "flex items-center justify-center py-14 ",
+        form.watch("isAdmin") && "mt-20"
+      )}
+    >
       <div className="bg-white p-10 rounded-lg shadow-lg w-full max-w-2xl">
         <h2 className="text-3xl font-bold text-center text-gray-800 mb-4">
           Registro
@@ -277,7 +296,7 @@ function FormRegister() {
                 href="/sign-in"
                 className="text-sm text-blue-600 hover:text-blue-800 underline"
               >
-                Don't have an account? Sign np
+                ¿No tienes una cuenta? Inicia sesión
               </Link>
             </div>
             <div className="mt-4">
@@ -292,6 +311,12 @@ function FormRegister() {
             </div>
           </form>
         </Form>
+
+        {form.watch("isAdmin") && isModal && (
+          <>
+            <Modal isModal={isModal} />
+          </>
+        )}
       </div>
     </div>
   );

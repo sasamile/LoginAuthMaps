@@ -39,7 +39,7 @@ function PasswordResetPage() {
       console.log(values);
       const response = await PasswordActions(values);
       toast.success("Correo Enviado");
-      route.push("https://mail.google.com/mail/u/0/#inbox");
+      route.push("/sign-in");
       console.log(response);
     } catch (error) {
       console.log(error);
@@ -59,7 +59,7 @@ function PasswordResetPage() {
         </div>
         <div className="w-full lg:w-1/2 flex items-center justify-center">
           <div className="flex items-center justify-center min-h-screen ">
-            <div className="bg-white p-8 rounded-lg w-full max-w-md shadow-2xl">
+            <div className="bg-white p-14 rounded-lg w-full max-w-md shadow-2xl">
               <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
                 Recuperar Contraseña
               </h2>

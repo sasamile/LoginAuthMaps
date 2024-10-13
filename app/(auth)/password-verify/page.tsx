@@ -81,7 +81,7 @@ function PasswordVerifyPage({
       <div className="flex flex-col justify-center flex-1 px-4 py-12 sm:px-6 lg:flex-none lg:px-20 xl:px-24">
         <div className="flex items-center w-full h-full max-w-sm mx-auto lg:w-96">
         <div className="flex items-center justify-center min-h-screen ">
-          <div className="bg-white p-8 rounded-lg shadow-2xl w-full max-w-md">
+          <div className="bg-white p-14 rounded-lg shadow-2xl w-full max-w-md">
             <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
               Cambiar Contraseña
             </h2>
@@ -98,7 +98,7 @@ function PasswordVerifyPage({
                       <FormControl>
                         <Input
                           type="password"
-                          className="border-2 border-blue-300 focus:border-blue-500 focus:ring focus:ring-blue-200"
+                          className="border-2 border-blue-300 w-[300px] focus:border-blue-500 focus:ring focus:ring-blue-200"
                           placeholder="********"
                           {...field}
                         />

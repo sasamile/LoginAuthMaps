@@ -3,8 +3,8 @@
 // import { PasswordResetSchema } from "@/app/(auth)/password/page";
 import bcrypt from "bcryptjs";
 import { db } from "@/lib/db";
-import { sendPasswordResetEmail } from "@/lib/passwordmail";
 import { nanoid } from "nanoid";
+import { sendPasswordResetEmail } from "@/lib/brevo";
 // import { z } from "zod";
 
 export const PasswordActions = async ({ email }: { email: string }) => {
@@ -48,7 +48,7 @@ export const PasswordActions = async ({ email }: { email: string }) => {
       },
     });
 
-    const response = await sendPasswordResetEmail(user.email, token);
+    await sendPasswordResetEmail(user.email, token);
   }
   return user;
 };
@@ -59,6 +59,7 @@ interface updateProps {
 }
 
 export const updatePHash = async ({ email, password }: updateProps) => {
+try {
   console.log(email);
   console.log(password);
 
@@ -84,4 +85,7 @@ export const updatePHash = async ({ email, password }: updateProps) => {
   });
 
   return updatePHash
+} catch (error) {
+  console.log(error);
+}
 };

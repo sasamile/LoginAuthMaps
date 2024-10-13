@@ -1,12 +1,19 @@
-import Navbar from '@/components/navbar'
-import React from 'react'
+import CanchasCarousel from "@/components/CanchasCarousel";
+import CanchasSection from "@/components/CanchasSection";
+import InfoSection from "@/components/infoSection";
+import Navbar from "@/components/navbar";
 
-function page() {
+export default function Home() {
   return (
-    <div>
+    <main className="min-h-screen bg-gradient-to-b from-blue-100 to-green-100">
       <Navbar />
-    </div>
-  )
+      <CanchasCarousel />
+      <InfoSection />
+      <CanchasSection />
+    </main>
+  );
 }
 
-export default page
+{
+  /* <Navbar /> */
+}

@@ -11,8 +11,10 @@ function AdminPage() {
   const { data: session, status } = useSession();
 
   useEffect(() => {
-    if (status === "authenticated" && session?.user?.role !== "ADMIN") {
+    if (status === "authenticated" && session?.user?.role === "USER") {
       router.push("/dashboard");
+    }else if(status === "authenticated" && session?.user?.role === "SUPERUSER"){
+      router.push("/superadmin")
     }
   }, [session, status, router]);
 
