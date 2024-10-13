@@ -57,7 +57,7 @@ function FormLogin({ isVerificada }: { isVerificada: boolean }) {
   }
 
   return (
-    <div className="shadow-2xl">
+    <div className="shadow-2xl dark:text-black">
       <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-16">
         <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
           Iniciar sesión

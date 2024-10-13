@@ -116,10 +116,14 @@ const Navbar = () => {
           </div>
           <div className="pt-4 pb-3 border-t border-gray-200">
             <div className="flex items-center px-5">
-              <Button variant="outline" className="mr-2 w-full">
-                Iniciar Sesión
-              </Button>
-              <Button className="w-full">Registrarse</Button>
+            <Link href={"/sign-in"}>
+                <Button variant="outline" className="mr-2 w-full">
+                  Iniciar Sesión
+                </Button>
+              </Link>
+              <Link href={"sign-up"}>
+                <Button>Registrarse</Button>
+              </Link>
             </div>
           </div>
         </div>
