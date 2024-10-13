@@ -62,11 +62,11 @@ function FormRegister() {
           "password",
           "archivo", // Asegúrate de que el archivo sea obligatorio
         ];
-
+  
         const allFieldsFilled = requiredFields.every(
           (field) => values[field as keyof typeof values] !== ""
         );
-
+  
         if (!allFieldsFilled) {
           setError("Todos los campos son obligatorios si eres administrador.");
           return; // Detener el envío si los campos no están llenos
@@ -75,7 +75,7 @@ function FormRegister() {
         // Si no es administrador, limpiar el campo archivo
         values.archivo = ""; // Borrar el archivo
       }
-
+  
       // Lógica para el registro
       console.log(values);
       startTransition(async () => {
@@ -83,21 +83,21 @@ function FormRegister() {
         console.log(response);
         if (response.error) {
           setError(response.error);
+        } else {
+          // Verifica el rol del usuario y redirige
+          if (values.isAdmin) {
+            setIsModal(true); // Mostrar el modal si es administrador
+          } else {
+            // Redirigir a la página de inicio de sesión si no es administrador
+            router.push("/sign-in");
+          }
         }
-        setIsModal(!isModal);
-
-        if (isModal === false) {
-          window.location.href = "/sign-in";
-        }
-
-      
       });
     } catch (error) {
       console.error("Error al crear el usuario:", error);
       setError("Error al crear el usuario. Inténtalo de nuevo.");
     }
   }
-
   return (
     <div
       className={cn(
