@@ -1,30 +1,23 @@
 "use client";
+
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { PasswordActions } from "@/actions/password-actions";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-
-export const PasswordResetSchema = z.object({
-  email: z.string().email({ message: "Invalid email address" }),
-});
+import { z } from "zod";
+import { PasswordResetSchema } from "@/lib/zod";
 
 function PasswordResetPage() {
   const route = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+
   const form = useForm<z.infer<typeof PasswordResetSchema>>({
     resolver: zodResolver(PasswordResetSchema),
     defaultValues: {
@@ -33,19 +26,21 @@ function PasswordResetPage() {
   });
 
   async function onSubmit(values: z.infer<typeof PasswordResetSchema>) {
-    setIsSubmitting(true); // Comienza el proceso de envío
     try {
+      setIsSubmitting(true);
       console.log(values);
-      await PasswordActions(values);
+      const response = await PasswordActions(values);
       toast.success("Correo Enviado");
       route.push("/sign-in");
+      console.log(response);
     } catch (error) {
-      console.error(error);
-      toast.error("Ocurrió un error al enviar el correo.");
+      console.log(error);
+      toast.error("Error al enviar el correo");
     } finally {
-      setIsSubmitting(false); // Finaliza el proceso de envío
+      setIsSubmitting(false);
     }
   }
+
 
   return (
     <div className="flex h-screen">

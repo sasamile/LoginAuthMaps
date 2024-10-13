@@ -30,3 +30,9 @@ export const RegisterSchema = object({
       message: "El archivo es requerido", // Mensaje de error si no se envía el documento
     }),
 });
+
+export const PasswordResetSchema = object({
+  email: string({ required_error: "Email is required" })
+    .min(1, "Email is required")
+    .email("Invalid email"),
+});
