@@ -1,6 +1,8 @@
+// Barra de navegación optimizadaSuper Componente
+
 "use client";
 
-import { User, Moon, Sun } from "lucide-react";
+import { User, Moon, Sun, Home, Users, UserCheck, Menu } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,12 +12,31 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import LogoutButton from "./logout-button";
-import { useState } from "react";
-import Sidebar from "./Sidebar";
+import { useState, useEffect } from "react";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+
+import { usePathname } from "next/navigation";
+import Link from "next/link";
+import { cn } from "@/lib/utils";
 
 const NavbarSuper = () => {
+  const pathname = usePathname();
   const { theme, setTheme } = useTheme();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  useEffect(() => {
+    setIsMenuOpen(false);
+  }, [pathname]);
+
+  const toggleMenu = () => {
+    setIsMenuOpen((prev) => !prev);
+  };
 
   return (
     <nav className="bg-background border-b">
@@ -48,54 +69,70 @@ const NavbarSuper = () => {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+
             <div className="-mr-2 flex md:hidden">
-              <button
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-                type="button"
-                className="bg-white inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white"
-                aria-controls="mobile-menu"
-                aria-expanded="false"
-              >
-                <span className="sr-only">Abrir menú principal</span>
-                {!isMenuOpen ? (
-                  <svg
-                    className="block h-6 w-6"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    aria-hidden="true"
+              <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
+                <SheetTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={toggleMenu}
+                    aria-controls="mobile-menu"
+                    aria-expanded={isMenuOpen}
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M4 6h16M4 12h16M4 18h16"
-                    />
-                  </svg>
-                ) : (
-                  <svg
-                    className="block h-6 w-6"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    aria-hidden="true"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                )}
-              </button>
+                    <span className="sr-only">Abrir menú principal</span>
+                    <Menu className="h-6 w-6" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent>
+                  <SheetHeader>
+                    <SheetDescription>
+                      <nav className="space-y-2">
+                        <Link
+                          href="/superadmin"
+                          className={cn(
+                            "flex items-center space-x-2 px-4 py-2.5 rounded-lg transition duration-200 hover:bg-primary hover:text-primary-foreground ",
+                            pathname === "/superadmin" &&
+                              "bg-primary text-white dark:text-black"
+                          )}
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          <Home size={20} />
+                          <span>Inicio</span>
+                        </Link>
+                        <Link
+                          href="/superadmin/pending"
+                          className={cn(
+                            "flex items-center space-x-2 px-4 py-2.5 rounded-lg transition duration-200 hover:bg-primary hover:text-primary-foreground ",
+                            pathname === "/superadmin/pending" &&
+                              "bg-primary text-white dark:text-black"
+                          )}
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          <Users size={20} />
+                          <span>Pendientes</span>
+                        </Link>
+                        <Link
+                          href="/superadmin/accepted"
+                          className={cn(
+                            "flex items-center space-x-2 px-4 py-2.5 rounded-lg transition duration-200 hover:bg-primary hover:text-primary-foreground ",
+                            pathname === "/superadmin/accepted" &&
+                              "bg-primary text-white dark:text-black"
+                          )}
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          <UserCheck size={20} />
+                          <span>Aceptados</span>
+                        </Link>
+                      </nav>
+                    </SheetDescription>
+                  </SheetHeader>
+                </SheetContent>
+              </Sheet>
             </div>
           </div>
         </div>
       </div>
-      
     </nav>
   );
 };

@@ -105,7 +105,7 @@ function FormRegister() {
         form.watch("isAdmin") && "mt-20"
       )}
     >
-      <div className="bg-white p-10 rounded-lg shadow-lg w-full max-w-2xl">
+      <div className={`bg-white p-10 rounded-lg shadow-lg w-full max-w-2xl mt-56 ${form.watch("isAdmin" )&& "max-md:mt-[30rem]"}`}>
         <h2 className="text-3xl font-bold text-center text-gray-800 mb-4">
           Registro
         </h2>
@@ -114,8 +114,8 @@ function FormRegister() {
         </p>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-            <div className="flex">
-              <div className="w-1/2 p-4 space-y-4">
+            <div className="md:flex">
+              <div className="md:w-1/2 p-4 space-y-4">
                 <FormField
                   control={form.control}
                   name="name"
@@ -188,7 +188,7 @@ function FormRegister() {
                   )}
                 />
               </div>
-              <div className="w-1/2 p-4 space-y-4">
+              <div className="md:w-1/2 p-4 space-y-4">
                 <FormField
                   control={form.control}
                   name="password"

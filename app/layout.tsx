@@ -28,13 +28,17 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <script
+          src={`https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_PLACE_API_KEY}&libraries=places`}
+          async
+        />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-          <ToastProvider />
-          <SessionProvider>
-            {children}
-          </SessionProvider>
+        <ToastProvider />
+        <SessionProvider>{children}</SessionProvider>
       </body>
     </html>
   );

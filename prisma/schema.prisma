@@ -27,6 +27,7 @@ model User {
   emailVerified    DateTime? @map("email_verified")
   passwordVerified DateTime? @map("password_verified")
   image            String?
+  Court            Court[]
 
   @@map("users")
 }
@@ -56,4 +57,21 @@ model PasswordResetToken {
 
   @@index([userId, token])
   @@map("password_tokens")
+}
+
+model Court {
+  id          String     @id @default(uuid())
+  name        String     @db.String
+  address     String     @db.String
+  description String     @db.String
+  dates       DateTime[]
+  startTime   String     @db.String
+  endTime     String     @db.String
+  price       Float
+  imageUrl    String     @db.String
+  coordinates Json?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  userId      String
+  user        User       @relation(fields: [userId], references: [id])
 }

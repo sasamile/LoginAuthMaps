@@ -18,3 +18,28 @@ declare module "next-auth" {
     }
   }
 }
+
+
+export interface Cancha {
+  id: string;
+  name: string;
+  address: string;
+  description: string;
+  dates: Date[];
+  startTime: string;
+  endTime: string;
+  price: number;
+  imageUrl: string;
+  coordinates: JsonValue;
+  createdAt: Date;
+  updatedAt: Date;
+  userId: string;
+}
+
+export interface Reserva {
+id: number;
+canchaId: number;
+fechaInicio: Date;
+fechaFin: Date;
+usuario: string;
+}

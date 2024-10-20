@@ -1,17 +1,17 @@
-import { auth } from "@/auth";
-import LogoutButton from "@/components/logout-button";
+// app/page.tsx
+import { db } from "@/lib/db";
+import ClientWrapper from "./_components/ClientWrapper";
 
-export default async function DashboardPage() {
-  const session = await auth();
-
-  if (!session) {
-    return <div>Not authenticated</div>;
-  }
+export default async function Home() {
+  const canchas = await db.court.findMany();
 
   return (
-    <div className="container">
-      <pre>{JSON.stringify(session)}</pre> 
-      <LogoutButton />
-    </div>
+    <main className="container mx-auto px-4 py-8">
+      <h1 className="text-4xl font-bold mb-8 text-center text-primary">
+        Dashboard de Canchas Deportivas
+      </h1>
+      
+        <ClientWrapper initialCanchas={canchas} />
+    </main>
   );
 }
