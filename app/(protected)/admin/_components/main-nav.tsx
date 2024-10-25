@@ -1,13 +1,13 @@
-"use client"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { cn } from "@/lib/utils"
+"use client";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
 
 export function MainNav({
   className,
   ...props
 }: React.HTMLAttributes<HTMLElement>) {
-  const pathname = usePathname()
+  const pathname = usePathname();
 
   return (
     <nav
@@ -18,12 +18,10 @@ export function MainNav({
         href="/admin"
         className={cn(
           "text-sm font-medium transition-colors hover:text-primary",
-          pathname === "/admin"
-            ? "text-primary"
-            : "text-muted-foreground"
+          pathname === "/admin" ? "text-primary" : "text-muted-foreground"
         )}
       >
-        Dashboard
+        Panel
       </Link>
       <Link
         href="/admin/courts"
@@ -59,5 +57,5 @@ export function MainNav({
         Reportes
       </Link>
     </nav>
-  )
+  );
 }

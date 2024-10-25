@@ -99,8 +99,6 @@ export function CourtForm() {
     };
   } | null>(null);
 
-  // console.log(selectedAddress?.label);
-
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -151,137 +149,121 @@ export function CourtForm() {
   }
 
   return (
-    <div className="flex flex-col md:flex-row justify-between items-start gap-8">
-      <div className="w-full md:w-1/2">
+    <div className="max-w-7xl mx-auto p-6">
+      <div className="bg-white rounded-lg shadow-lg p-6">
+        <h2 className="text-2xl font-bold mb-6 text-gray-800">Registro de Cancha</h2>
+        
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Nombre de la Cancha</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Cancha Principal" {...field} />
-                  </FormControl>
-                  <FormDescription>
-                    Ingrese un nombre descriptivo para la cancha.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div>
-              <GoogleAddressSearch
-                selectedAddress={setSelectedAddress}
-                setCoordinates={setCoordinates}
-              />
-            </div>
-
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Descripción</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Cancha de fútbol 5 con césped sintético..."
-                      className="resize-none"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    Proporcione una descripción detallada de la cancha.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <div className="flex space-x-4">
-              <FormField
-                control={form.control}
-                name="dates"
-                render={({ field }) => (
-                  <FormItem className="flex flex-col">
-                    <FormLabel>Fechas</FormLabel>
-                    <Calendar
-                      mode="multiple"
-                      selected={field.value}
-                      onSelect={field.onChange}
-                      className="rounded-md border-2 border-gray-300 p-2"
-                      disabled={(date) => date < new Date()}
-                    />
-                    <FormDescription>
-                      Seleccione una o más fechas para reservar la cancha.
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <div className="">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            {/* Formulario Principal - 7 columnas */}
+            <div className="lg:col-span-7 space-y-6">
+              {/* Información Básica */}
+              <div className="bg-white rounded-lg border p-4">
                 <FormField
                   control={form.control}
-                  name="startTime"
+                  name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-lg font-semibold">
-                        Hora de Inicio
-                      </FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        value={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger className="w-full p-2 border-2 border-gray-300 rounded-md">
-                            <SelectValue placeholder="Seleccione una hora de inicio" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {timeSlots.map((slot) => (
-                            <SelectItem key={slot} value={slot}>
-                              {slot}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormDescription>
-                        Elija la hora de inicio para la cancha.
-                      </FormDescription>
+                      <FormLabel className="text-sm font-medium">Nombre de la Cancha</FormLabel>
+                      <FormControl>
+                        <Input 
+                          placeholder="Ej: Cancha Principal" 
+                          {...field}
+                          className="h-10"
+                        />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
 
+                <div className="mt-4">
+                  <GoogleAddressSearch
+                    selectedAddress={setSelectedAddress}
+                    setCoordinates={setCoordinates}
+                  />
+                </div>
+
                 <FormField
                   control={form.control}
-                  name="endTime"
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem className="mt-4">
+                      <FormLabel className="text-sm font-medium">Descripción</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Describe las características de la cancha"
+                          className="min-h-[100px] resize-none"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              {/* Precio */}
+              <div className="bg-white rounded-lg border p-4">
+                <FormField
+                  control={form.control}
+                  name="price"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-lg font-semibold">
-                        Hora de Fin
-                      </FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        value={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger className="w-full p-2 border-2 border-gray-300 rounded-md">
-                            <SelectValue placeholder="Seleccione una hora de fin" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {timeSlots.map((slot) => (
-                            <SelectItem key={slot} value={slot}>
-                              {slot}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormDescription>
-                        Elija la hora de fin para la cancha.
+                      <FormLabel className="text-sm font-medium">Precio por Hora</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="number" 
+                          placeholder="50.00" 
+                          {...field}
+                          className="h-10"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              {/* Imagen */}
+              <div className="bg-white rounded-lg border p-4">
+                <FormField
+                  control={form.control}
+                  name="imageUrl"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium">Imagen de la Cancha</FormLabel>
+                      <FormControl>
+                        {field.value ? (
+                          <div className="relative rounded-lg overflow-hidden">
+                            <Image
+                              src={field.value}
+                              alt="Imagen de la cancha"
+                              width={540}
+                              height={300}
+                              className="w-full h-[200px] object-cover"
+                            />
+                            <button
+                              type="button"
+                              className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                              onClick={() => field.onChange("")}
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="border-2 border-dashed rounded-lg p-4">
+                            <FileUpload
+                              endpoint="ImageFile"
+                              onChange={(url) => {
+                                if (url) field.onChange(url);
+                              }}
+                            />
+                          </div>
+                        )}
+                      </FormControl>
+                      <FormDescription className="text-xs mt-2">
+                        Formato recomendado: 16:9
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -290,80 +272,120 @@ export function CourtForm() {
               </div>
             </div>
 
-            <FormField
-              control={form.control}
-              name="price"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Precio por Hora</FormLabel>
-                  <FormControl>
-                    <Input type="number" placeholder="50.00" {...field} />
-                  </FormControl>
-                  <FormDescription>
-                    Ingrese el precio por hora de alquiler de la cancha.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <div>
-              <FormField
-                control={form.control}
-                name="imageUrl"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      {field.value ? (
-                        <div className="w-500 h-500 relative">
-                          <Image
-                            src={field.value}
-                            alt="Imagen subida"
-                            width={540}
-                            height={540}
-                            className="w-540 h-500 object-cover rounded-md mb-2"
-                          />
-                          <button
-                            type="button"
-                            className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1 z-10"
-                            onClick={() => field.onChange("")} // Limpiar el campo de imagen
-                          >
-                            <X />
-                          </button>
-                        </div>
-                      ) : (
-                        <FileUpload
-                          endpoint="ImageFile"
-                          onChange={(url) => {
-                            if (url) {
-                              field.onChange(url);
-                            }
-                          }}
-                        />
-                      )}
-                    </FormControl>
-                    <div className="text-xs text-muted-foreground mt-4">
-                      16:9 aspect ratio recommended
-                    </div>
-                  </FormItem>
-                )}
-              />
-            </div>
+            {/* Mapa y Calendario - 5 columnas */}
+            <div className="lg:col-span-5 space-y-6">
+              {/* Mapa */}
+              <div className="bg-white rounded-lg border p-4">
+                <h3 className="text-sm font-medium mb-4">Ubicación de la Cancha</h3>
+                <div className="h-[300px] rounded-lg overflow-hidden">
+                  <GoogleMapSection coordinates={coordinates} />
+                </div>
+              </div>
 
-            <Button
-              type="submit"
-              className="w-full md:w-auto"
-              onClick={() => console.log("Botón clickeado")}
-            >
-              Guardar Cancha
-            </Button>
+              {/* Calendario y Horarios */}
+              <div className="bg-white rounded-lg border p-4">
+                <h3 className="text-sm font-medium mb-4">Disponibilidad</h3>
+                
+                <FormField
+                  control={form.control}
+                  name="dates"
+                  render={({ field }) => (
+                    <FormItem className="space-y-3">
+                      <Calendar
+                        mode="multiple"
+                        selected={field.value}
+                        onSelect={field.onChange}
+                        className="border rounded-md"
+                        classNames={{
+                          months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
+                          month: "space-y-4",
+                          caption: "flex justify-center pt-1 relative items-center",
+                          caption_label: "text-sm font-medium",
+                          nav: "space-x-1 flex items-center",
+                          nav_button: "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100 transition-opacity",
+                          nav_button_previous: "absolute left-1",
+                          nav_button_next: "absolute right-1",
+                          table: "w-full border-collapse space-y-1",
+                          head_row: "flex",
+                          head_cell: "text-slate-500 rounded-md w-8 font-normal text-[0.8rem]",
+                          row: "flex w-full mt-2",
+                          cell: "relative p-0 text-center text-sm focus-within:relative focus-within:z-20 [&:has([aria-selected])]:bg-slate-100",
+                          day: "h-8 w-8 p-0 font-normal aria-selected:opacity-100",
+                          day_range_end: "day-range-end",
+                          day_selected: "bg-slate-900 text-slate-50 hover:bg-slate-900 hover:text-slate-50 focus:bg-slate-900 focus:text-slate-50",
+                          day_today: "bg-slate-100 text-slate-900",
+                          day_outside: "text-slate-400 opacity-50",
+                          day_disabled: "text-slate-400 opacity-50",
+                          day_range_middle: "aria-selected:bg-slate-100 aria-selected:text-slate-900",
+                          day_hidden: "invisible",
+                        }}
+                        disabled={(date) => date < new Date()}
+                      />
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Horarios */}
+                <div className="grid grid-cols-2 gap-4 mt-4">
+                  <FormField
+                    control={form.control}
+                    name="startTime"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm font-medium">Inicio</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Hora inicial" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {timeSlots.map((time) => (
+                              <SelectItem key={time} value={time}>{time}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="endTime"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm font-medium">Fin</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Hora final" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {timeSlots.map((time) => (
+                              <SelectItem key={time} value={time}>{time}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+
+              {/* Botón de Submit */}
+              <Button
+                type="submit"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2"
+              >
+                Guardar Cancha
+              </Button>
+            </div>
           </form>
         </Form>
-      </div>
-
-      <div className="w-full md:w-1/2 h-full">
-        <div className="h-full md:w-[350px] lg:w-[450px] xl:w-[550px]">
-          <GoogleMapSection coordinates={coordinates} />
-        </div>
       </div>
     </div>
   );

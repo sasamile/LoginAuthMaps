@@ -8,7 +8,7 @@ import { CourtMap } from "../_components/court-map";
 import { CourtForm } from "../_components/court-form";
 
 export default function CourtsPage() {
-  const [activeTab, setActiveTab] = useState("list");
+  const [activeTab, setActiveTab] = useState("add");
 
   return (
     <div className="flex-1 space-y-4 p-8 pt-6">
@@ -21,20 +21,9 @@ export default function CourtsPage() {
         className="space-y-4"
       >
         <TabsList>
-          <TabsTrigger value="list">Lista</TabsTrigger>
-
           <TabsTrigger value="add">Agregar Cancha</TabsTrigger>
+          <TabsTrigger value="list">Lista</TabsTrigger>
         </TabsList>
-        <TabsContent value="list">
-          <Card>
-            <CardHeader>
-              <CardTitle>Lista de Canchas</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <CourtList />
-            </CardContent>
-          </Card>
-        </TabsContent>
 
         <TabsContent value="add">
           <Card>
@@ -43,6 +32,16 @@ export default function CourtsPage() {
             </CardHeader>
             <CardContent>
               <CourtForm />
+            </CardContent>
+          </Card>
+        </TabsContent>
+        <TabsContent value="list">
+          <Card>
+            <CardHeader>
+              <CardTitle>Lista de Canchas</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <CourtList />
             </CardContent>
           </Card>
         </TabsContent>

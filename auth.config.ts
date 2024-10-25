@@ -58,6 +58,6 @@ export default {
     }),
   ],
   pages: {
-    signIn: "/auth/sign-in", // Indica tu página personalizada
+    signIn: "/sign-in", // Indica tu página personalizada
   },
 } satisfies NextAuthConfig;

@@ -17,10 +17,10 @@ import { Input } from "@/components/ui/input";
 import { loginAction } from "@/actions/auth-actions";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useSession } from "next-auth/react";
 import toast from "react-hot-toast";
+import { signIn, useSession } from "next-auth/react";
 
-function FormLogin({ isVerificada }: { isVerificada: boolean }) {
+function FormLogin() {
   const router = useRouter();
 
   const [error, setError] = useState<string | null>(null);
@@ -34,13 +34,19 @@ function FormLogin({ isVerificada }: { isVerificada: boolean }) {
     },
   });
 
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
 
   useEffect(() => {
-    if (session?.user) {
-      router.push("/");
+    if (status === "authenticated") {
+      if (session?.user?.role === "USER") {
+        window.location.href = "/dashboard";
+      } else if (session?.user?.role === "ADMIN") {
+        window.location.href = "/admin";
+      } else if (session?.user?.role === "SUPERUSER") {
+        window.location.href = "/superadmin";
+      }
     }
-  }, [session]);
+  }, [session, status, router]);
 
   async function onSubmit(values: z.infer<typeof LoginSchema>) {
     console.log(values);
@@ -51,7 +57,13 @@ function FormLogin({ isVerificada }: { isVerificada: boolean }) {
       if (response.error) {
         toast.error(response.error);
       } else {
-        window.location.href = "/admin";
+        toast.success("Logged in successfully");
+        // Forzar una actualización de la sesión después de iniciar sesión
+        await signIn("credentials", {
+          email: values.email,
+          password: values.password,
+          redirect: false,
+        });
       }
     });
   }
@@ -62,27 +74,7 @@ function FormLogin({ isVerificada }: { isVerificada: boolean }) {
         <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
           Iniciar sesión
         </h2>
-        {isVerificada && (
-          <div className="mb-6 p-4 bg-green-100 border-l-4 border-green-500 rounded-md flex items-center">
-            <svg
-              className="w-6 h-6 text-green-500 mr-3"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M5 13l4 4L19 7"
-              ></path>
-            </svg>
-            <p className="text-green-700 font-medium">
-              Your email has been successfully verified! You can now log in.
-            </p>
-          </div>
-        )}
+
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
@@ -142,7 +134,7 @@ function FormLogin({ isVerificada }: { isVerificada: boolean }) {
                 No tienes una cuenta? Registrate
               </Link>
             </div>
-           
+
             <Button
               disabled={isPending}
               className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 rounded"

@@ -13,45 +13,7 @@ import { Button } from "@/components/ui/button";
 import { CourtDetails } from "./court-details";
 import { useSession } from "next-auth/react";
 import { getListBack } from "@/actions/canchas-actions";
-import { Court } from "@prisma/client";
-// import { CourtDetails } from "@/components/dashboard/court-details"
 
-const mockCourts = [
-  {
-    id: "1",
-    name: "Cancha Principal",
-    address: "Calle 123, Ciudad Deportiva",
-    description:
-      "Cancha de fútbol 5 con césped sintético de última generación.",
-    price: 50,
-    image:
-      "https://images.unsplash.com/photo-1529900748604-07564a03e7a6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80",
-    latitude: -34.603722,
-    longitude: -58.381592,
-  },
-  {
-    id: "2",
-    name: "Cancha Auxiliar",
-    address: "Avenida Central 456, Complejo Deportivo",
-    description: "Cancha de fútbol 7 con iluminación nocturna.",
-    price: 60,
-    image:
-      "https://images.unsplash.com/photo-1624880357913-a8539238245b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80",
-    latitude: -34.605778,
-    longitude: -58.383889,
-  },
-  {
-    id: "3",
-    name: "Cancha Multideporte",
-    address: "Plaza del Deporte 789",
-    description: "Cancha polivalente para fútbol, baloncesto y voleibol.",
-    price: 55,
-    image:
-      "https://images.unsplash.com/photo-1575361204480-aadea25e6e68?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1171&q=80",
-    latitude: -34.601944,
-    longitude: -58.385833,
-  },
-];
 
 // Define el tipo Coordinates
 interface Coordinates {
