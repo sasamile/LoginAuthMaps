@@ -14,8 +14,6 @@ export default auth((req) => {
   const { nextUrl } = req;
   const isLoggedIn = !!req.auth;
 
-  
-
   const isApiRoute = nextUrl.pathname.startsWith(apiAuthPrefix);
   const isPublicRoute = publicRoutes.includes(nextUrl?.pathname);
   const isAuthRoute = authRoutes.includes(nextUrl.pathname);
@@ -29,7 +27,9 @@ export default auth((req) => {
       if (req.auth?.user.role === "USER") {
         return Response.redirect(new URL(DEFAULT_LOGIN_REDIRECT_USER, req.url));
       } else if (req.auth?.user.role === "ADMIN") {
-        return Response.redirect(new URL(DEFAULT_LOGIN_REDIRECT_ADMIN, req.url));
+        return Response.redirect(
+          new URL(DEFAULT_LOGIN_REDIRECT_ADMIN, req.url)
+        );
       }
     }
     return undefined;
@@ -44,5 +44,5 @@ export default auth((req) => {
 
 // Optionally, don't invoke Middleware on some paths
 export const config = {
-  matcher: ["/((?!.+\\.[\\w]+$|_next).*)", "/", "/(api|trpc)(.*)"],
+  matcher: ["/((?!.*\\..*|_next|api/uploadthing).*)", "/", "/(api|trpc)(.*)"],
 };

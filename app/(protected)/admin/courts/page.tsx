@@ -8,7 +8,19 @@ import { CourtMap } from "../_components/court-map";
 import { CourtForm } from "../_components/court-form";
 
 export default function CourtsPage() {
-  const [activeTab, setActiveTab] = useState("add");
+  const [activeTab, setActiveTab] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("activeTab") || "add";
+    }
+    return "add";
+  });
+
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("activeTab", value);
+    }
+  };
 
   return (
     <div className="flex-1 space-y-4 p-8 pt-6">
@@ -17,7 +29,7 @@ export default function CourtsPage() {
       </div>
       <Tabs
         value={activeTab}
-        onValueChange={setActiveTab}
+        onValueChange={handleTabChange}
         className="space-y-4"
       >
         <TabsList>

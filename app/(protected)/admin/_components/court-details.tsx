@@ -78,7 +78,7 @@ export function CourtDetails({ court, onBack }: CourtDetailsProps) {
             </div>
 
             {/* Mapa en tamaño reducido */}
-            <div className="h-48 rounded-lg overflow-hidden shadow-md">
+            <div className="h-60 rounded-lg overflow-hidden shadow-md">
               <GoogleMapSection coordinates={court.coordinates} />
             </div>
           </div>

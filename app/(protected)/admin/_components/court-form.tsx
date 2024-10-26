@@ -82,6 +82,15 @@ const timeSlots = [
   "22:00",
 ];
 
+function formatPrice(price: number) {
+  return new Intl.NumberFormat("es-CO", {
+    style: "currency",
+    currency: "COP",
+    minimumFractionDigits: 0,
+  }).format(price);
+}
+
+
 export function CourtForm() {
   const router = useRouter();
   const { data: session } = useSession();
@@ -212,12 +221,12 @@ export function CourtForm() {
                     <FormItem>
                       <FormLabel className="text-sm font-medium">Precio por Hora</FormLabel>
                       <FormControl>
-                        <Input 
-                          type="number" 
-                          placeholder="50.00" 
-                          {...field}
-                          className="h-10"
-                        />
+                      <Input 
+                        type="number" 
+                        placeholder={formatPrice(50000)} // Mostrar el placeholder en formato de pesos colombianos
+                        {...field}
+                        className="h-10"
+                      />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -241,7 +250,7 @@ export function CourtForm() {
                               alt="Imagen de la cancha"
                               width={540}
                               height={300}
-                              className="w-full h-[200px] object-cover"
+                              className="w-full h-[350px] object-cover"
                             />
                             <button
                               type="button"
