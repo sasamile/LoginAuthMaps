@@ -1,6 +1,5 @@
 "use client";
-import React, { useEffect, useState, useTransition } from "react";
-import { LoginSchema } from "@/lib/zod";
+import React, { useEffect, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -8,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -17,13 +17,13 @@ import { Input } from "@/components/ui/input";
 import { loginAction } from "@/actions/auth-actions";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import toast from "react-hot-toast";
+import { toast } from "sonner";
 import { signIn, useSession } from "next-auth/react";
+import { LoginSchema } from "@/schemas";
+import { PasswordInput } from "@/components/ui/password-input";
 
 function FormLogin() {
   const router = useRouter();
-
-  const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
   const form = useForm<z.infer<typeof LoginSchema>>({
@@ -35,6 +35,7 @@ function FormLogin() {
   });
 
   const { data: session, status } = useSession();
+  const { isSubmitting, isValid } = form.formState;
 
   useEffect(() => {
     if (status === "authenticated") {
@@ -49,45 +50,51 @@ function FormLogin() {
   }, [session, status, router]);
 
   async function onSubmit(values: z.infer<typeof LoginSchema>) {
-    console.log(values);
-
-    startTransition(async () => {
-      const response = await loginAction(values);
-      console.log(response);
-      if (response.error) {
-        toast.error(response.error);
-      } else {
-        toast.success("Logged in successfully");
-        // Forzar una actualización de la sesión después de iniciar sesión
-        await signIn("credentials", {
-          email: values.email,
-          password: values.password,
-          redirect: false,
-        });
-      }
-    });
+    try {
+      startTransition(async () => {
+        const response = await loginAction(values);
+        console.log(response);
+        if (response.error) {
+          toast.error(response.error);
+        } else {
+          toast.success("Logged in successfully");
+          // Forzar una actualización de la sesión después de iniciar sesión
+          await signIn("credentials", {
+            email: values.email,
+            password: values.password,
+            redirect: false,
+          });
+        }
+      });
+    } catch (error) {}
   }
 
   return (
-    <div className="shadow-2xl dark:text-black">
-      <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-16">
-        <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
+    <div className="">
+      <div className="w-full max-w-md">
+        <h2 className="text-3xl py-4 font-bold mt-6 text-center">
           Iniciar sesión
         </h2>
-
+        <p className="select-none pb-4 text-center">
+          No tienes una cuenta {""}
+          <span
+            className="text-blue-500 cursor-pointer"
+            onClick={() => router.push("/sign-up")}
+          >
+            Regístrese
+          </span>
+        </p>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-gray-700">
-                    Correo electrónico
-                  </FormLabel>
+                  <FormLabel>Correo electrónico</FormLabel>
                   <FormControl>
                     <Input
-                      className="border-2 w-[300px] border-blue-300 focus:border-blue-500 focus:ring focus:ring-blue-200"
+                      className="border-[#525252] py-5"
                       placeholder="shadcn"
                       {...field}
                     />
@@ -102,36 +109,28 @@ function FormLogin() {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-gray-700">Contraseña</FormLabel>
+                  <FormLabel>Contraseña</FormLabel>
                   <FormControl>
-                    <Input
-                      className="border-2 border-blue-300 focus:border-blue-500 focus:ring focus:ring-blue-200"
-                      type="password"
-                      placeholder="*********"
-                      {...field}
+                    <PasswordInput
+                      field={field}
+                      isSubmitting={isSubmitting}
+                      className="border-[#525252] py-5"
                     />
                   </FormControl>
+                  <FormDescription className="text-[13.5px]">
+                    La contraseña debe tener un mínimo de 8 caracteres,
+                    incluyendo al menos 1 letra, 1 número y 1 carácter especial.
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <div className="flex flex-col justify-between items-center mt-4 mb-6">
-              <Button
-                type="button"
-                variant="link"
-                className="text-sm text-blue-600 hover:text-blue-800 underline"
-                onClick={() => {
-                  router.push("/password");
-                  // You might want to redirect to a forgot password page or open a modal
-                }}
+            <div className="flex justify-between items-center mt-4 mb-6 ">
+              <Link
+                href="/password"
+                className="text-sm  hover:text-blue-800 underline"
               >
                 ¿Has olvidado tu contraseña?
-              </Button>
-              <Link
-                href="/sign-up"
-                className="text-sm text-blue-600 hover:text-blue-800 underline"
-              >
-                No tienes una cuenta? Registrate
               </Link>
             </div>
 
@@ -139,7 +138,7 @@ function FormLogin() {
               disabled={isPending}
               className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 rounded"
             >
-              Submit
+              Enviar
             </Button>
           </form>
         </Form>

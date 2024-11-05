@@ -1,26 +1,32 @@
 "use client";
 
 import { UploadDropzone } from "@/lib/uploadthing";
-import { OurFileRouter, ourFileRouter } from "@/app/api/uploadthing/core";
+import { ourFileRouter, OurFileRouter } from "@/app/api/uploadthing/core";
 import { Url } from "next/dist/shared/lib/router/router";
-import { error } from "console";
 import toast from "react-hot-toast";
 
 interface FileUploadProps {
-  onChange: (Url?: string) => void;
+  onChange: (urls: string[]) => void;
   endpoint: keyof typeof ourFileRouter;
+ 
 }
 
-export const FileUpload = ({ onChange, endpoint }: FileUploadProps) => {
+export const FileUpload = ({
+  onChange,
+  endpoint,
+ 
+}: FileUploadProps) => {
   return (
     <UploadDropzone
       endpoint={endpoint}
       onClientUploadComplete={(res) => {
-        onChange(res?.[0].url);
+        const urls = res?.map((file) => file.url) || [];
+        onChange(urls);
       }}
       onUploadError={(error: Error) => {
         toast.error(`${error?.message}`);
       }}
+     
     />
   );
 };

@@ -27,13 +27,21 @@ const GoogleAddressSearch: React.FC<GoogleAddressSearchProps> = ({
 
   return (
     <div className="flex items-center w-full">
-      <MapPin className="h-10 w-10 p-2 rounded-l-lg text-primary bg-purple-200" />
+      <MapPin className="h-10 w-10 p-2 rounded-l-lg text-primary bg-blue-500 dark:border-gray-500 " />
       <GooglePlacesAutocomplete
         apiKey={process.env.NEXT_PUBLIC_GOOGLE_PLACE_API_KEY}
         selectProps={{
           placeholder: "Search Property Address",
           isClearable: true,
-          className: "w-full",
+          className: "w-full dark:text-black",
+          styles: {
+            control: (provided) => ({
+              ...provided,
+              background: "transparent",
+              borderRadius: "0px",
+
+            }),
+          },
           onChange: (place) => {
             if (place) {
               console.log(place);
@@ -44,6 +52,11 @@ const GoogleAddressSearch: React.FC<GoogleAddressSearchProps> = ({
                   setCoordinates({ lat, lng });
                 });
             }
+          },
+        }}
+        autocompletionRequest={{
+          componentRestrictions: {
+            country: ["co"],
           },
         }}
       />

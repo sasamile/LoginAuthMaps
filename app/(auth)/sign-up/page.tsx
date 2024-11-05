@@ -1,30 +1,27 @@
-"use client"
-import FormRegister from "@/components/form-register";
-import Loading from "@/components/Loading";
-import { useSession } from "next-auth/react";
-import Image from "next/image";
-import React, { useEffect } from "react";
+"use client";
+
+import AccountCreationStepper from "@/components/auth/account-creation-stepper";
+import { useRouter } from "next/navigation";
 
 function RegisterPage() {
-
+  const router = useRouter();
   return (
-    <div className="flex h-screen">
-      <div className="w-full lg:w-1/2 flex items-center justify-center pt-14 overflow-auto">
-        <FormRegister />
+    <div className=" dark:text-white h-full ">
+      <div className=" xl:px-16 w-fit mx-auto">
+        <h2 className="text-3xl py-4 font-bold ">Crea una cuenta</h2>
+        <p className="select-none">
+          Ya tienes una cuenta? {""}
+          <span
+            className="text-blue-500 cursor-pointer"
+            onClick={() => router.push("/sign-in")}
+          >
+            Iniciar sesión
+          </span>
+        </p>
       </div>
-      
-      <div className="relative hidden lg:block w-1/2 h-full overflow-hidden">
-        <Image
-          src="/img3.jpg"
-          alt="Login"
-          layout="fill"
-          objectFit="cover"
-          className="overflow-hidden"
-          priority
-        />
-      </div>
+
+      <AccountCreationStepper />
     </div>
   );
 }
-
 export default RegisterPage;

@@ -1,11 +1,13 @@
 import type { NextAuthConfig } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import { LoginSchema } from "./lib/zod";
 import { db } from "./lib/db";
 import bcrypt from "bcryptjs";
+import { LoginSchema } from "./schemas";
 
 export default {
+  
   providers: [
+    
     Credentials({
       authorize: async (credentials) => {
         const { data, success, error } = LoginSchema.safeParse(credentials);

@@ -31,7 +31,7 @@ export const ourFileRouter = {
   }),
 
   ImageFile: f({
-    image: { maxFileCount: 1, maxFileSize: "4MB" },
+    image: { maxFileCount: 3, maxFileSize: "4MB" },
   })
   .middleware(async ({ req }) => {
     // Similar middleware for ImageFile

@@ -1,17 +1,12 @@
-import React, { useState } from "react";
-import { format } from "date-fns";
-import { es } from "date-fns/locale";
-import {
-  Clock,
-  MapPin,
-  DollarSign,
-  Calendar as CalendarIcon,
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-react";
-
-import { Button } from "@/components/ui/button";
+"use client";
+import { firstCourts } from "@/actions/canchas-actions";
+import GoogleMapSection from "@/app/(protected)/admin/_components/GoogleMapSection";
+import NavButton from "@/components/dashboard/navbutton";
+import ReservationModal from "@/components/dashboard/reservationModal";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { Calendar2 } from "@/components/ui/calendar2";
 import {
   Card,
   CardContent,
@@ -20,17 +15,17 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Calendar } from "@/components/ui/calendar";
-
-import GoogleMapSection from "./GoogleMapSection";
-import ReservationModal from "@/components/dashboard/reservationModal";
 import { Court } from "@prisma/client";
-import { Calendar2 } from "@/components/ui/calendar2";
-
-interface CourtDetailsProps {
-  court: Court;
-  onBack: () => void;
-}
+import {
+  CalendarIcon,
+  ChevronLeft,
+  ChevronRight,
+  Clock,
+  DollarSign,
+  MapPin,
+} from "lucide-react";
+import { useRouter } from "next/navigation";
+import React, { useEffect, useState } from "react";
 
 const ImageGallery = ({ images }: { images: string[] }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -42,6 +37,7 @@ const ImageGallery = ({ images }: { images: string[] }) => {
   const prevImage = () => {
     setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
   };
+
   return (
     <div className="relative group">
       {/* Imagen Principal */}
@@ -117,7 +113,9 @@ const ImageGallery = ({ images }: { images: string[] }) => {
   );
 };
 
-const formatTimeRange = (startTime: string, endTime: string) => {
+const formatTimeRange = (startTime?: string, endTime?: string) => {
+  if (!startTime || !endTime) return "";
+
   const formatTime = (time: string) => {
     const [hours, minutes] = time.split(":");
     return `${hours}:${minutes}`;
@@ -125,54 +123,89 @@ const formatTimeRange = (startTime: string, endTime: string) => {
   return `${formatTime(startTime)} - ${formatTime(endTime)}`;
 };
 
-export function CourtDetails({ court, onBack }: CourtDetailsProps) {
-  const availableDates = court.dates.map((date) => new Date(date));
-
+function page({ params }: { params: { courtsId: string } }) {
+  const router = useRouter();
+  const [court, setCourts] = useState<Court | null>();
   const [isReservationModalOpen, setIsReservationModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const firtsCourt = async () => {
+    const result = await firstCourts(params.courtsId);
+    setCourts(result);
+    setIsLoading(false);
+  };
+  useEffect(() => {
+    firtsCourt();
+  }, []);
+
+  const availableDates = court?.dates.map((date) => new Date(date));
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div
+            className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
+            role="status"
+          >
+            <span className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">
+              Loading...
+            </span>
+          </div>
+          <p className="mt-4 text-xl font-semibold">
+            Cargando información de la cancha...
+          </p>
+        </div>
+      </div>
+    );
+  }
   return (
-    <Card className="max-w-6xl mx-auto">
-      <CardHeader className="border-b">
+    <div>
+      <NavButton />
+      <div className="border-b p-4 ">
+        <div className="flex justify-between w-full">
+          <Button variant="outline" onClick={() => router.push("/dashboard")}>
+            Volver a la lista
+          </Button>
+          <Button
+            className="px-8"
+            onClick={() => setIsReservationModalOpen(true)}
+          >
+            Reservar ahora
+          </Button>
+        </div>
+      </div>
+
+      <div className="border-b">
         <div className="flex items-center justify-between">
-          <div>
-            <CardTitle className="text-2xl font-bold">{court.name}</CardTitle>
-            <CardDescription className="flex items-center gap-2 mt-2">
+          <div className="p-8">
+            <h2 className="text-2xl font-bold">{court?.name}</h2>
+            <span className="flex items-center gap-2 mt-2">
               <MapPin className="w-4 h-4" />
-              {court.address}
-            </CardDescription>
+              {court?.address}
+            </span>
           </div>
           <Badge
             variant="secondary"
             className="text-lg px-4 py-2 flex items-center gap-2"
           >
             <DollarSign className="w-4 h-4" />
-            {court.price}/hora
+            {court?.price}/hora
           </Badge>
         </div>
-      </CardHeader>
+      </div>
 
-      <CardContent className="p-6">
+      <div className="p-6">
         <div className="grid grid-cols-12 gap-6">
           {/* Columna izquierda: Galería de imágenes y descripción */}
           <div className="col-span-12 md:col-span-7 space-y-6">
-            <ImageGallery images={court.imageUrl} />
+            <ImageGallery images={court?.imageUrl ?? []} />
 
             <div className="bg-muted/30 p-4 rounded-lg">
               <h3 className="font-semibold mb-2">Acerca de la cancha</h3>
               <p className="text-muted-foreground leading-relaxed">
-                {court.description}
+                {court?.description}
               </p>
-            </div>
-
-            <div className="h-80  w-[1100px] rounded-lg overflow-hidden shadow-md">
-              <GoogleMapSection
-                coordinates={
-                  court?.coordinates
-                    ? ((typeof court.coordinates === "string"
-                        ? JSON.parse(court.coordinates)
-                        : court.coordinates) as { lat: number; lng: number })
-                    : { lat: 0, lng: 0 }
-                }
-              />
             </div>
           </div>
 
@@ -189,7 +222,7 @@ export function CourtDetails({ court, onBack }: CourtDetailsProps) {
                 selected={availableDates}
                 className="rounded-md border"
                 disabled={(date) =>
-                  !availableDates.some(
+                  !availableDates?.some(
                     (d) => d.toDateString() === date.toDateString()
                   )
                 }
@@ -199,7 +232,7 @@ export function CourtDetails({ court, onBack }: CourtDetailsProps) {
                 <div className="flex items-center gap-2 text-sm">
                   <Clock className="w-4 h-4 text-primary" />
                   <span className="font-medium">
-                    Horario: {formatTimeRange(court.startTime, court.endTime)}
+                    Horario: {formatTimeRange(court?.startTime, court?.endTime)}
                   </span>
                 </div>
               </div>
@@ -208,7 +241,7 @@ export function CourtDetails({ court, onBack }: CourtDetailsProps) {
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-primary/10 p-4 rounded-lg text-center">
                 <span className="text-2xl font-bold text-primary">
-                  {availableDates.length}
+                  {availableDates?.length}
                 </span>
                 <p className="text-sm text-muted-foreground">
                   Días disponibles
@@ -216,33 +249,34 @@ export function CourtDetails({ court, onBack }: CourtDetailsProps) {
               </div>
               <div className="bg-primary/10 p-4 rounded-lg text-center">
                 <span className="text-2xl font-bold text-primary">
-                  {parseInt(court.endTime) - parseInt(court.startTime)}
+                  {parseInt(court?.endTime ?? "0") -
+                    parseInt(court?.startTime ?? "0")}
                 </span>
                 <p className="text-sm text-muted-foreground">Horas por día</p>
               </div>
             </div>
           </div>
         </div>
-      </CardContent>
-
-      <CardFooter className="border-t p-6">
-        <div className="flex justify-between w-full">
-          <Button variant="outline" onClick={onBack}>
-            Volver a la lista
-          </Button>
-          <Button
-            className="px-8"
-            onClick={() => setIsReservationModalOpen(true)}
-          >
-            Reservar ahora
-          </Button>
+        <div className="h-80 pt-4 rounded-lg overflow-hidden shadow-md">
+          <GoogleMapSection
+            coordinates={
+              court?.coordinates
+                ? ((typeof court.coordinates === "string"
+                    ? JSON.parse(court.coordinates)
+                    : court.coordinates) as { lat: number; lng: number })
+                : { lat: 0, lng: 0 }
+            }
+          />
         </div>
-      </CardFooter>
+      </div>
+
       <ReservationModal
         isOpen={isReservationModalOpen}
         onClose={() => setIsReservationModalOpen(false)}
         court={court}
       />
-    </Card>
+    </div>
   );
 }
+
+export default page;

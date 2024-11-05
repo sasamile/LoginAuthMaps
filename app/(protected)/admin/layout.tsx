@@ -8,6 +8,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useState } from "react";
+import { ModeToggle } from "@/components/ui/modetoggle";
 
 function layout({ children }: { children: React.ReactNode }) {
   const { data: session, status } = useSession();
@@ -21,6 +22,7 @@ function layout({ children }: { children: React.ReactNode }) {
         <div className="flex h-16 items-center px-4">
           <MainNav className="mx-6" />
           <div className="ml-auto flex items-center space-x-4">
+            <ModeToggle />
             <UserNav />
           </div>
         </div>

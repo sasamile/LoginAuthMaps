@@ -1,17 +1,9 @@
-// app/page.tsx
+import ClientWrapper from "@/components/dashboard/clientWrapper";
 import { db } from "@/lib/db";
-import ClientWrapper from "./_components/ClientWrapper";
 
-export default async function Home() {
+async function DashboardPage() {
   const canchas = await db.court.findMany();
-
-  return (
-    <main className="container mx-auto px-4 py-8">
-      <h1 className="text-4xl font-bold mb-8 text-center text-primary">
-        Dashboard de Canchas Deportivas
-      </h1>
-      
-        <ClientWrapper initialCanchas={canchas} />
-    </main>
-  );
+  return <ClientWrapper initialCanchas={canchas} />;
 }
+
+export default DashboardPage;

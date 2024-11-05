@@ -1,12 +1,13 @@
 "use server";
 import { signIn } from "@/auth";
 import { db } from "@/lib/db";
-import { LoginSchema, RegisterSchema } from "@/lib/zod";
+import { LoginSchema, RegisterSchema } from "@/schemas";
 import { AuthError } from "next-auth";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
 import { DeleteEmail, SendEmail } from "@/lib/brevo";
-
+import { Role } from "@prisma/client";
+import { getUserByEmail } from "./user";
 
 export const loginAction = async (values: z.infer<typeof LoginSchema>) => {
   try {
@@ -24,61 +25,70 @@ export const loginAction = async (values: z.infer<typeof LoginSchema>) => {
   }
 };
 
-export const RegisterAction = async (
-  values: z.infer<typeof RegisterSchema>
-) => {
+export async function register(
+  values: z.infer<typeof RegisterSchema>,
+  role: Role,
+  fileUrl?: string
+) {
+  const result = RegisterSchema.safeParse(values);
+
+  if (result.error) {
+    return { error: "Credenciales inválidos!" };
+  }
+
+  if (!role) {
+    return { error: "Role requerido!" };
+  }
+
+  if (role === "ADMIN" && !fileUrl) {
+    return {
+      error: "RUT o documento que acredite propiedad del terreno requerido!",
+    };
+  }
+
+  const { name, lastname, phone, email, password } = result.data;
+
   try {
-    const { success, data } = RegisterSchema.safeParse(values);
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    if (!success) return { error: "Invalid data" };
+    const existingUser = await getUserByEmail(email);
 
-    const user = await db.user.findUnique({
-      where: {
-        email: values.email,
-      },
-    });
-
-    if (user) return { error: "Email already exists" };
-
-    const passwordHas = await bcrypt.hash(data.password, 10);
-
-    //crear usuario
+    if (existingUser) {
+      return { error: "El correo ingresado ya está en uso!" };
+    }
 
     await db.user.create({
       data: {
-        name: data.name,
-        email: data.email,
-        password: passwordHas,
-        numeroTelefono: data.numeroTelefono,
-        apellido: data.apellido,
-        archivo: data.archivo,
-        isAdmin: data.isAdmin,
-        role: data.isAdmin ? "ADMIN" : "USER",
+        name,
+        lastname,
+        phone,
+        email,
+        password: hashedPassword,
+        role,
+        isAdmin: role === "ADMIN",
+        file: fileUrl,
+        isActive: role === "USER",
       },
     });
 
-    return { success: true };
+    return { success: "Registro exitoso." };
   } catch (error) {
-    {
-      if (error instanceof AuthError) {
-        return { error: error.cause?.err?.message };
-      }
-      return { error: "Error 500" };
-    }
+    return { error: "Algo salió mal en el proceso." };
   }
-};
-export const TotalUser = async()=>{
+}
+
+export const TotalUser = async () => {
   try {
     const totaluser = await db.user.findMany({
       where: {
         role: "ADMIN",
       },
     });
-    return totaluser
+    return totaluser;
   } catch (error) {
     console.log(error);
   }
-}
+};
 
 export const PendientesAdmin = async () => {
   try {
@@ -119,7 +129,7 @@ export const AcceptAdmin = async (id: string) => {
         isActive: true,
       },
     });
-    await SendEmail(Accept.email,Accept.name)
+    await SendEmail(Accept.email, Accept.name);
     return Accept;
   } catch (error) {
     console.log(error);
@@ -131,9 +141,8 @@ export const DeleteAdmin = async (id: string) => {
       where: {
         id: id,
       },
-      
     });
-    await DeleteEmail(Accept.email,Accept.name)
+    await DeleteEmail(Accept.email, Accept.name);
     return Accept;
   } catch (error) {
     console.log(error);

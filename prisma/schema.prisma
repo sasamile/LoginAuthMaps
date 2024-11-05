@@ -14,20 +14,21 @@ datasource db {
 }
 
 model User {
-  id               String    @id @default(uuid())
-  email            String    @unique
+  id               String        @id @default(uuid())
+  email            String        @unique
   password         String?
   name             String
-  apellido         String
-  numeroTelefono   String?
-  isAdmin          Boolean?  @default(false)
-  archivo          String?
-  isActive         Boolean?  @default(false)
-  role             Role      @default(USER)
-  emailVerified    DateTime? @map("email_verified")
-  passwordVerified DateTime? @map("password_verified")
+  lastname         String
+  phone            String?
+  isAdmin          Boolean?      @default(false)
+  file             String?
+  isActive         Boolean?      @default(false)
+  role             Role          @default(USER)
+  emailVerified    DateTime?     @map("email_verified")
+  passwordVerified DateTime?     @map("password_verified")
   image            String?
   Court            Court[]
+  Reservation      Reservation[]
 
   @@map("users")
 }
@@ -60,18 +61,45 @@ model PasswordResetToken {
 }
 
 model Court {
-  id          String     @id @default(uuid())
-  name        String     @db.String
-  address     String     @db.String
-  description String     @db.String
+  id          String        @id @default(uuid())
+  name        String        @db.String
+  address     String        @db.String
+  description String        @db.String
   dates       DateTime[]
-  startTime   String     @db.String
-  endTime     String     @db.String
+  startTime   String        @db.String
+  endTime     String        @db.String
   price       Float
-  imageUrl    String     @db.String
+  imageUrl    String[]      @db.String
   coordinates Json?
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
   userId      String
-  user        User       @relation(fields: [userId], references: [id])
+  user        User          @relation(fields: [userId], references: [id])
+  Reservation Reservation[]
+}
+
+enum ReservationStatus {
+  PENDING
+  SUCCESS
+  DENIED
+}
+
+model Reservation {
+  id         String            @id @default(uuid())
+  courtId    String
+  court      Court             @relation(fields: [courtId], references: [id])
+  userId     String
+  user       User              @relation(fields: [userId], references: [id])
+  date       DateTime
+  startTime  String
+  endTime    String
+  totalHours Int
+  totalPrice Float
+  status     ReservationStatus @default(PENDING)
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
+
+  @@index([courtId])
+  @@index([userId])
+  @@map("reservations")
 }

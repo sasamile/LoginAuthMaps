@@ -80,3 +80,22 @@ html, body, :root {
     @apply bg-background text-foreground;
   }
 }
+
+.react-international-phone-input-container .react-international-phone-country-selector-button {
+  /* border:none 1px soild #525252 !important; */
+  padding: 2px 8px !important;
+  height: 48px !important;
+  background-color: transparent !important;
+  border: 1px solid #525252 !important;
+  border-radius: 10px 0px 0px 10px !important;
+}
+
+.react-international-phone-input-container .react-international-phone-input {
+  color: var(--primary) !important;
+  height: 48px !important;
+  background-color: transparent !important;
+  width: 100%;
+  border: 1px solid #525252 !important;
+  border-radius: 0px 10px 10px 0px !important;
+}
+

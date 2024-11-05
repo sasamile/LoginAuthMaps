@@ -47,7 +47,7 @@ const GoogleMapSection: React.FC<GoogleMapSectionProps> = ({ coordinates }) => {
   }, []);
 
   return (
-    <div>
+    <div className="w-full">
       <GoogleMap
         mapContainerStyle={containerStyle}
         center={center}
@@ -56,7 +56,8 @@ const GoogleMapSection: React.FC<GoogleMapSectionProps> = ({ coordinates }) => {
         onUnmount={onUnmount}
         options={{
           zoomControl: true,
-          gestureHandling: "greedy",
+          gestureHandling: "none",
+          draggable: false,
         }}
       >
         {/* Añadir un marcador si las coordenadas existen */}
@@ -75,4 +76,3 @@ const GoogleMapSection: React.FC<GoogleMapSectionProps> = ({ coordinates }) => {
 };
 
 export default GoogleMapSection;
-

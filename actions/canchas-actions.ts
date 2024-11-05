@@ -13,7 +13,7 @@ interface CreateCourtInput {
   startTime: string;
   endTime: string;
   price: number;
-  imageUrl: string;
+  imageUrl: string[];
   coordinates: Coordinates; // Utilizamos un tipo más
   email: string;
 }
@@ -94,5 +94,29 @@ export const getListBack = async (email: string) => {
     return court;
   } catch (error) {
     console.log(error);
+  }
+};
+
+export const fetchCourts = async () => {
+  try {
+    const courts = await db.court.findMany();
+    return courts;
+  } catch (error) {
+    console.error("Error fetching courts:", error);
+    throw new Error("Failed to fetch courts");
+  }
+};
+
+export const firstCourts = async (id: string ) => {
+  try {
+    const courts = await db.court.findFirst({
+      where:{
+        id:id
+      }
+    });
+    return courts;
+  } catch (error) {
+    console.error("Error fetching courts:", error);
+    throw new Error("Failed to fetch courts");
   }
 };
