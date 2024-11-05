@@ -31,7 +31,7 @@ export function PendingAdminsTable() {
           id: user.id,
           name: user.name,
           email: user.email,
-          pdfUrl: user.archivo,
+          pdfUrl: user.file,
         }))
       );
     }

@@ -11,7 +11,8 @@ import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { z } from "zod";
-import { PasswordResetSchema } from "@/lib/zod";
+import { PasswordResetSchema } from "@/schemas";
+
 
 function PasswordResetPage() {
   const route = useRouter();
