@@ -28,6 +28,8 @@ import { rolesInfo } from "@/constants";
 import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
 import { useRouter } from "next/navigation";
+import Modal from "../Modal";
+import { signIn } from "next-auth/react";
 
 export default function AccountCreationStepper() {
   const [step, setStep] = useState(1);
@@ -36,6 +38,7 @@ export default function AccountCreationStepper() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isModal, setIsModal] = useState(false);
 
   const [formData, setFormData] = useState<z.infer<typeof RegisterSchema>>({
     email: "",
@@ -110,9 +113,11 @@ export default function AccountCreationStepper() {
           }
 
           if (success) {
-            toast.success(success);
+            // toast.success(success);
             resetForm();
-            router.push("/sign-in");
+            if (accountType !== "ADMIN") {
+              router.push("/sign-in");
+            }
           }
         }
 
@@ -129,7 +134,13 @@ export default function AccountCreationStepper() {
         if (success) {
           toast.success(success);
           resetForm();
-          router.push("/sign-in");
+          window.location.href = "/sign-in";
+
+          await signIn("credentials", {
+            email: formData.email,
+            password: formData.password,
+            redirect: false,
+          });
         }
       }
     } catch (error) {
@@ -413,9 +424,11 @@ export default function AccountCreationStepper() {
                   type="submit"
                   className="w-full bg-blue-700 text-white hover:bg-blue-900"
                   disabled={!selectedFile}
+                  onClick={() => setIsModal(true)}
                 >
                   Enviar
                 </Button>
+                <Modal isModal={isModal} />
               </div>
             )}
           </>

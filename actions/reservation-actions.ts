@@ -4,6 +4,7 @@
 import { db } from "@/lib/db";
 import { ReservationStatus } from "@prisma/client";
 import { revalidatePath } from "next/cache";
+import { getUserByEmail } from "./user";
 
 interface CreateReservationParams {
   courtId: string;
@@ -19,14 +20,12 @@ export async function createReservation(data: CreateReservationParams) {
   console.log("Server Action Called with data:", data); // Debug log
 
   try {
-    const user = await db.user.findUnique({
-      where: {
-        email: data.email,
-      },
-    });
+    const user = await getUserByEmail(data.email);
+
     if (!user) {
       throw new Error("Error el usuario no registrado");
     }
+
     // Verificar si ya existe una reserva para esa fecha y hora
     const existingReservation = await db.reservation.findFirst({
       where: {
@@ -120,4 +119,25 @@ export async function checkCourtAvailability(
         "No se pudo verificar la disponibilidad. Por favor, inténtalo de nuevo.",
     };
   }
+}
+
+export async function getreservas(email: string) {
+  console.log(email);
+  const user = await getUserByEmail(email);
+
+  if (!user) {
+    console.log("Error el usuario no registrado");
+    return []; // Return an empty array or handle the error as needed
+  }
+
+  try {
+    const res = await db.reservation.findMany({
+      where: {
+        userId: user.id,
+        status: "PENDING",
+      },
+      include: { court: true },
+    });
+    return res;
+  } catch (error) {}
 }

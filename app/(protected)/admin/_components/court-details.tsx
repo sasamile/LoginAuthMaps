@@ -151,6 +151,17 @@ export function CourtDetails({ court, onBack }: CourtDetailsProps) {
       </CardHeader>
 
       <CardContent className="p-6">
+        <div className="h-80  w-[1100px] rounded-lg overflow-hidden shadow-md mb-12">
+          <GoogleMapSection
+            coordinates={
+              court?.coordinates
+                ? ((typeof court.coordinates === "string"
+                    ? JSON.parse(court.coordinates)
+                    : court.coordinates) as { lat: number; lng: number })
+                : { lat: 0, lng: 0 }
+            }
+          />
+        </div>
         <div className="grid grid-cols-12 gap-6">
           {/* Columna izquierda: Galería de imágenes y descripción */}
           <div className="col-span-12 md:col-span-7 space-y-6">
@@ -161,18 +172,6 @@ export function CourtDetails({ court, onBack }: CourtDetailsProps) {
               <p className="text-muted-foreground leading-relaxed">
                 {court.description}
               </p>
-            </div>
-
-            <div className="h-80  w-[1100px] rounded-lg overflow-hidden shadow-md">
-              <GoogleMapSection
-                coordinates={
-                  court?.coordinates
-                    ? ((typeof court.coordinates === "string"
-                        ? JSON.parse(court.coordinates)
-                        : court.coordinates) as { lat: number; lng: number })
-                    : { lat: 0, lng: 0 }
-                }
-              />
             </div>
           </div>
 
@@ -187,7 +186,7 @@ export function CourtDetails({ court, onBack }: CourtDetailsProps) {
               <Calendar2
                 mode="multiple"
                 selected={availableDates}
-                className="rounded-md border"
+                className="rounded-md border p-2"
                 disabled={(date) =>
                   !availableDates.some(
                     (d) => d.toDateString() === date.toDateString()

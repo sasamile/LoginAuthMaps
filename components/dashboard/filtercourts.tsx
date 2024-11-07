@@ -71,15 +71,15 @@ function Filtercourts({ canchas, onFilter }: FilterFormProps) {
   };
 
   return (
-    <div className="col-span-12 md:col-span-4 lg:col-span-3 space-y-6">
-      <Card>
+    <div className="col-span-12 md:col-span-4 lg:col-span-3 space-y-6 rounded-2xl ">
+      <Card className="bg-muted/50">
         <CardHeader>
           <CardTitle>Filtrar Disponibilidad</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             <div className="py-4">
-              <label className="block text-sm font-medium mb-2">
+              <label className="block text-sm font-medium mb-2 dark:text-gray-300">
                 Nombre de la cancha
               </label>
               <Input
@@ -99,11 +99,11 @@ function Filtercourts({ canchas, onFilter }: FilterFormProps) {
               onSelect={(date) => {
                 setSelectedDate(date);
               }}
-              className="rounded-md border"
+              className="rounded-md border p-2 xl w-full"
             />
 
             <div className="py-4">
-              <label className="block text-sm font-medium mb-2">
+              <label className="block text-sm font-medium mb-2 dark:text-gray-300">
                 Dirección de la cancha
               </label>
               <Input
@@ -119,7 +119,7 @@ function Filtercourts({ canchas, onFilter }: FilterFormProps) {
             <div>
               <label className="block text-sm font-medium mb-2">Horario</label>
               <select
-                className="w-full rounded-md border border-gray-300 p-2"
+                className="w-full rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white p-2"
                 value={timeSlot}
                 onChange={(e) => {
                   setTimeSlot(e.target.value);
@@ -133,7 +133,7 @@ function Filtercourts({ canchas, onFilter }: FilterFormProps) {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">
+              <label className="block text-sm font-medium mb-2 dark:text-gray-300">
                 Precio máximo
               </label>
               <input
@@ -147,11 +147,11 @@ function Filtercourts({ canchas, onFilter }: FilterFormProps) {
                   setPrice(parseInt(e.target.value));
                 }}
               />
-              <div className="flex justify-between text-sm text-gray-500">
+              <div className="flex justify-between text-sm text-gray-500 dark:text-gray-400">
                 <span>$0</span>
                 <span>$100.000</span>
               </div>
-              <div className="text-center font-medium text-sm mt-2">
+              <div className="text-center font-medium text-sm mt-2 dark:text-gray-300">
                 ${price}
               </div>
             </div>

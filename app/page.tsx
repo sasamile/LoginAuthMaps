@@ -1,9 +1,12 @@
-import Navbar from "@/components/navbar";
+import Hero from "@/components/Home/hero";
+import Navbar from "@/components/Home/navbar";
+
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-gradient-to-b from-blue-100 to-green-100">
+    <div className="h-full dark:bg-black overflow-hidden relative w-full">
       <Navbar />
-    </main>
+      <Hero />
+    </div>
   );
 }

@@ -71,6 +71,14 @@ export async function register(
       },
     });
 
+    if (role === "USER") {
+      await signIn("credentials", {
+        email: values.email,
+        password: values.password,
+        redirect: false,
+      });
+    }
+
     return { success: "Registro exitoso." };
   } catch (error) {
     return { error: "Algo salió mal en el proceso." };

@@ -1,5 +1,6 @@
 "use server";
 import { db } from "@/lib/db";
+import { getUserByEmail } from "./user";
 interface Coordinates {
   lat: number;
   lng: number;
@@ -34,9 +35,7 @@ export const canchasCourt = async (data: CreateCourtInput) => {
 
   console.log(data);
 
-  const user = await db.user.findUnique({
-    where: { email },
-  });
+  const user = await getUserByEmail(email);
 
   if (!user) {
     throw new Error("El usuario con el ID proporcionado no existe.");
@@ -76,11 +75,11 @@ export const canchasCourt = async (data: CreateCourtInput) => {
 
 export const getListBack = async (email: string) => {
   try {
-    const user = await db.user.findUnique({
-      where: {
-        email: email,
-      },
-    });
+    const user = await getUserByEmail(email);
+
+    if (!user) {
+      throw new Error("El usuario con el ID proporcionado no existe.");
+    }
 
     if (user?.role !== "ADMIN") {
       throw new Error("Error el usuario no es Admin");
@@ -107,16 +106,29 @@ export const fetchCourts = async () => {
   }
 };
 
-export const firstCourts = async (id: string ) => {
+export const firstCourts = async (id: string) => {
   try {
     const courts = await db.court.findFirst({
-      where:{
-        id:id
-      }
+      where: {
+        id: id,
+      },
     });
     return courts;
   } catch (error) {
     console.error("Error fetching courts:", error);
+    throw new Error("Failed to fetch courts");
+  }
+};
+
+export const getCourtAllID = async (id: string) => {
+  try {
+    const Courtid = await db.court.findFirst({
+      where: {
+        id: id,
+      },
+    });
+    return Courtid;
+  } catch (error) {
     throw new Error("Failed to fetch courts");
   }
 };

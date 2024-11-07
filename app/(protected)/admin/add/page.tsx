@@ -131,9 +131,9 @@ export default function AddCourts() {
 
   return (
     <div className="min-h-screen ">
-      <div className="max-w-7xl mx-auto p-6">
+      <div className="mx-auto p-6">
         <div className="rounded-xl shadow-xl p-8">
-          <h2 className="text-3xl font-bold mb-8 text-black/90 dark:text-white flex items-center gap-2">
+          <h2 className="text-3xl font-bold mb-8 flex items-center gap-2">
             <MapPin className="w-8 h-8 text-blue-600" />
             Registro de Cancha
           </h2>
@@ -144,7 +144,7 @@ export default function AddCourts() {
                 {/* Columna izquierda */}
                 <div className="lg:col-span-7 space-y-8">
                   {/* Información Básica */}
-                  <div className="rounded-xl border border-blue-100 dark:border-gray-500 p-6 shadow-sm">
+                  <div className="rounded-xl border p-6 shadow-sm">
                     <h3 className="text-xl font-semibold mb-6 text-blue-900 dark:text-white">
                       Información Básica
                     </h3>
@@ -154,14 +154,14 @@ export default function AddCourts() {
                       name="name"
                       render={({ field }) => (
                         <FormItem className="mb-6">
-                          <FormLabel className="text-sm font-semibold text-gray-700 dark:text-gray-400">
+                          <FormLabel className="text-sm font-semibold ">
                             Nombre de la Cancha
                           </FormLabel>
                           <FormControl>
                             <Input
                               placeholder="Ej: Cancha Principal"
                               {...field}
-                              className="h-11 border-blue-200 dark:border-gray-500 focus:border-blue-400 focus:ring-blue-400"
+                              className="h-11 "
                             />
                           </FormControl>
                           <FormMessage />
@@ -170,7 +170,7 @@ export default function AddCourts() {
                     />
 
                     <div className="mb-6">
-                      <label className="text-sm font-semibold text-gray-700 mb-2 block">
+                      <label className="text-sm font-semibold  mb-2 block">
                         Ubicación
                       </label>
                       <GoogleAddressSearch
@@ -184,13 +184,13 @@ export default function AddCourts() {
                       name="description"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-sm font-semibold text-gray-700">
+                          <FormLabel className="text-sm font-semibold ">
                             Descripción
                           </FormLabel>
                           <FormControl>
                             <Textarea
                               placeholder="Describe las características de la cancha"
-                              className="min-h-[120px] resize-none border-blue-200 dark:border-gray-500 focus:border-blue-400 focus:ring-blue-400"
+                              className="min-h-[120px] resize-none "
                               {...field}
                             />
                           </FormControl>
@@ -201,7 +201,7 @@ export default function AddCourts() {
                   </div>
 
                   {/* Precio */}
-                  <div className="rounded-xl border border-blue-100 p-6 shadow-sm dark:border-gray-500">
+                  <div className="rounded-xl border  p-6 shadow-sm ">
                     <h3 className="text-xl font-semibold mb-6 text-blue-900 dark:text-white flex items-center gap-2">
                       <DollarSign className="w-6 h-6 text-blue-600" />
                       Precio
@@ -212,7 +212,7 @@ export default function AddCourts() {
                       name="price"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-sm font-semibold text-gray-700">
+                          <FormLabel className="text-sm font-semibold ">
                             Precio por Hora
                           </FormLabel>
                           <FormControl>
@@ -220,7 +220,7 @@ export default function AddCourts() {
                               type="number"
                               placeholder={formatPrice(50000)}
                               {...field}
-                              className="h-11 dark:border-gray-500 border-blue-200 focus:border-blue-400 focus:ring-blue-400"
+                              className="h-11   focus:border-blue-400 focus:ring-blue-400"
                             />
                           </FormControl>
                           <FormMessage />
@@ -230,7 +230,7 @@ export default function AddCourts() {
                   </div>
 
                   {/* Imagen */}
-                  <div className="rounded-xl border border-blue-100 p-6 shadow-sm dark:border-gray-500">
+                  <div className="rounded-xl border  p-6 shadow-sm ">
                     <h3 className="text-xl font-semibold mb-6 text-blue-900 dark:text-white flex items-center gap-2">
                       <Camera className="w-6 h-6 text-blue-600" />
                       Imagen de la Cancha
@@ -273,7 +273,7 @@ export default function AddCourts() {
                                 ))}
                               </div>
                             ) : (
-                              <div className="border-2 border-dashed border-blue-200 rounded-xl p-8 text-center">
+                              <div className="border-2 border-dashed  rounded-xl p-8 text-center">
                                 <FileUpload
                                   endpoint="ImageFile"
                                   onChange={(urls) => {
@@ -283,7 +283,7 @@ export default function AddCourts() {
                               </div>
                             )}
                           </FormControl>
-                          <FormDescription className="text-sm mt-2 text-gray-600">
+                          <FormDescription className="text-sm mt-2 ">
                             Formato recomendado: 16:9
                           </FormDescription>
                           <FormMessage />
@@ -296,7 +296,7 @@ export default function AddCourts() {
                 {/* Columna derecha */}
                 <div className="lg:col-span-5 space-y-8">
                   {/* Mapa */}
-                  <div className="rounded-xl border border-blue-100 p-6 shadow-sm dark:border-gray-500">
+                  <div className="rounded-xl border  p-6 shadow-sm ">
                     <h3 className="text-xl font-semibold mb-6 text-blue-900 dark:text-white flex items-center gap-2">
                       <MapPin className="w-6 h-6 text-blue-600" />
                       Ubicación
@@ -306,7 +306,7 @@ export default function AddCourts() {
                     </div>
                   </div>
 
-                  <div className="rounded-xl border border-blue-100 p-6 shadow-sm dark:border-gray-500 flex flex-col">
+                  <div className="rounded-xl border  p-6 shadow-sm  flex flex-col">
                     <h3 className="text-xl font-semibold mb-6 text-blue-900 dark:text-white flex items-center gap-2">
                       <Clock className="w-6 h-6 text-blue-600" />
                       Disponibilidad
@@ -321,7 +321,7 @@ export default function AddCourts() {
                               mode="multiple"
                               selected={field.value}
                               onSelect={field.onChange}
-                              className="rounded-xl border-blue-100 dark:border-gray-500 h-full"
+                              className="rounded-xl   h-full"
                               disabled={(date) => date < new Date()}
                             />
                             <FormMessage />
@@ -337,7 +337,7 @@ export default function AddCourts() {
                         name="startTime"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-sm font-semibold text-gray-700">
+                            <FormLabel className="text-sm font-semibold ">
                               Hora de Inicio
                             </FormLabel>
                             <Select
@@ -345,7 +345,7 @@ export default function AddCourts() {
                               value={field.value}
                             >
                               <FormControl>
-                                <SelectTrigger className="h-11 border-blue-200 dark:border-gray-500">
+                                <SelectTrigger className="h-11  ">
                                   <SelectValue placeholder="Seleccionar" />
                                 </SelectTrigger>
                               </FormControl>
@@ -367,7 +367,7 @@ export default function AddCourts() {
                         name="endTime"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-sm font-semibold text-gray-700">
+                            <FormLabel className="text-sm font-semibold ">
                               Hora de Fin
                             </FormLabel>
                             <Select
@@ -375,7 +375,7 @@ export default function AddCourts() {
                               value={field.value}
                             >
                               <FormControl>
-                                <SelectTrigger className="h-11 border-blue-200 dark:border-gray-500">
+                                <SelectTrigger className="h-11  ">
                                   <SelectValue placeholder="Seleccionar" />
                                 </SelectTrigger>
                               </FormControl>

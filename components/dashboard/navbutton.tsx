@@ -10,12 +10,12 @@ export default function NavButton() {
   const patname = usePathname();
   const navbar = [
     { label: "Disponibles", link: "/dashboard", icon: Calendar },
-    { label: "Mis Reservas", link: "/reservas", icon: List },
-    { label: "Historial", link: "/history", icon: History },
+    { label: "Mis Reservas", link: "/dashboard/reservas", icon: List },
+    { label: "Historial", link: "/dashboard/history", icon: History },
   ];
 
   return (
-    <div className="bg-white border-b">
+    <div className=" dark:border-gray-600 border-b-[0.5px]">
       <div className=" mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className="flex items-center justify-between">
           <div className="flex justify-center items-center gap-4">
@@ -37,17 +37,19 @@ export default function NavButton() {
                 fill="#3b82f5ff"
               ></path>{" "}
             </svg>
-            <h1 className="text-2xl font-bold text-gray-900">CourtMap</h1>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+              CourtMap
+            </h1>
           </div>
           <nav className="flex space-x-4">
             {navbar.map((nav) => (
               <Link href={nav.link} key={nav.label}>
                 <Button
-                  variant={"outline"}
+                  variant={"ghost"}
                   className={
                     patname === nav.link
-                      ? "bg-black dark:bg-white text-white dark:text-black"
-                      : "bg-white text-black"
+                      ? " text-black dark:text-white"
+                      : " text-gray-500 dark:text-gray-500"
                   }
                 >
                   <nav.icon className="w-5 h-5" />
@@ -56,9 +58,11 @@ export default function NavButton() {
               </Link>
             ))}
           </nav>
-          <ModeToggle />
+          <div className="flex justify-center items-center gap-4">
+            <ModeToggle />
 
-          <UserNav />
+            <UserNav />
+          </div>
         </div>
       </div>
     </div>

@@ -27,7 +27,7 @@ const GoogleAddressSearch: React.FC<GoogleAddressSearchProps> = ({
 
   return (
     <div className="flex items-center w-full">
-      <MapPin className="h-10 w-10 p-2 rounded-l-lg text-primary bg-blue-500 dark:border-gray-500 " />
+      <MapPin className="h-[39px] w-10 p-2 rounded-l-lg text-primary bg-blue-500 " />
       <GooglePlacesAutocomplete
         apiKey={process.env.NEXT_PUBLIC_GOOGLE_PLACE_API_KEY}
         selectProps={{

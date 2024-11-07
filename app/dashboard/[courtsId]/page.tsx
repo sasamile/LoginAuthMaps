@@ -161,7 +161,6 @@ function page({ params }: { params: { courtsId: string } }) {
   }
   return (
     <div>
-      <NavButton />
       <div className="border-b p-4 ">
         <div className="flex justify-between w-full">
           <Button variant="outline" onClick={() => router.push("/dashboard")}>
@@ -216,17 +215,18 @@ function page({ params }: { params: { courtsId: string } }) {
                 <CalendarIcon className="w-5 h-5 text-primary" />
                 <h3 className="font-semibold">Disponibilidad</h3>
               </div>
-
-              <Calendar2
-                mode="multiple"
-                selected={availableDates}
-                className="rounded-md border"
-                disabled={(date) =>
-                  !availableDates?.some(
-                    (d) => d.toDateString() === date.toDateString()
-                  )
-                }
-              />
+              <div className=" flex justify-center items-center">
+                <Calendar2
+                  mode="multiple"
+                  selected={availableDates}
+                  className="rounded-md border w-[80%] flex justify-center items-center"
+                  disabled={(date) =>
+                    !availableDates?.some(
+                      (d) => d.toDateString() === date.toDateString()
+                    )
+                  }
+                />
+              </div>
 
               <div className="mt-4 p-3 bg-muted/30 rounded-md">
                 <div className="flex items-center gap-2 text-sm">
@@ -255,18 +255,18 @@ function page({ params }: { params: { courtsId: string } }) {
                 <p className="text-sm text-muted-foreground">Horas por día</p>
               </div>
             </div>
+            <div className="w-full h-80 rounded-lg overflow-hidden shadow-md">
+              <GoogleMapSection
+                coordinates={
+                  court?.coordinates
+                    ? ((typeof court.coordinates === "string"
+                        ? JSON.parse(court.coordinates)
+                        : court.coordinates) as { lat: number; lng: number })
+                    : { lat: 0, lng: 0 }
+                }
+              />
+            </div>
           </div>
-        </div>
-        <div className="h-80 pt-4 rounded-lg overflow-hidden shadow-md">
-          <GoogleMapSection
-            coordinates={
-              court?.coordinates
-                ? ((typeof court.coordinates === "string"
-                    ? JSON.parse(court.coordinates)
-                    : court.coordinates) as { lat: number; lng: number })
-                : { lat: 0, lng: 0 }
-            }
-          />
         </div>
       </div>
 

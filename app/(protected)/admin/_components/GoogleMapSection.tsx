@@ -60,12 +60,20 @@ const GoogleMapSection: React.FC<GoogleMapSectionProps> = ({ coordinates }) => {
           draggable: false,
         }}
       >
-        {/* Añadir un marcador si las coordenadas existen */}
-        {coordinates && (
+        {/* Añadir un marcador si las coordenadas son válidas */}
+        {coordinates && coordinates.lat !== 0 && coordinates.lng !== 0 ? ( // Verificación simplificada
           <MarkerF
             position={coordinates}
             icon={{
-              url: "/ping.png", // Icono personalizado opcional
+              url: "/ping.png", // Asegúrate de que esta URL sea correcta
+              scaledSize: new google.maps.Size(60, 60), // Escalado del icono
+            }}
+          />
+        ) : (
+          <MarkerF
+            position={{ lat: 4.142, lng: -73.626 }} // Marcador por defecto si no hay coordenadas
+            icon={{
+              url: "/ping.png", // Asegúrate de que esta URL sea correcta
               scaledSize: new google.maps.Size(60, 60), // Escalado del icono
             }}
           />

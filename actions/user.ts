@@ -1,22 +1,24 @@
-"use server"
+"use server";
 
-import { db } from "@/lib/db"
+import { UserData } from "@/components/profilemodal";
+import { db } from "@/lib/db";
+import { Court } from "@prisma/client";
 
 export async function getUserByEmail(email: string) {
   try {
     const user = await db.user.findUnique({
       where: { email },
-    })
+    });
 
-    return user
+    return user;
   } catch (error) {
-    return null
+    return null;
   }
 }
 
 export const getUserById = async (id?: string) => {
   if (!id) {
-    return null
+    return null;
   }
 
   try {
@@ -24,10 +26,25 @@ export const getUserById = async (id?: string) => {
       where: {
         id,
       },
-    })
+    });
 
-    return userFound
+    return userFound;
   } catch (error) {
-    return null
+    return null;
   }
-}
+};
+
+export const patchUser = async (values: UserData) => {
+  try {
+    const user = await db.user.update({
+      where: { id: values.id },
+      data: {
+        name: values.name,
+        email: values.email,
+        lastname: values.lastname,
+        phone: values.phone,
+        image:values.image
+      },
+    });
+  } catch (error) {}
+};

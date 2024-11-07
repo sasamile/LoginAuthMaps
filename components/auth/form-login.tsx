@@ -57,7 +57,7 @@ function FormLogin() {
         if (response.error) {
           toast.error(response.error);
         } else {
-          toast.success("Logged in successfully");
+          toast.success("Login exitoso");
           // Forzar una actualización de la sesión después de iniciar sesión
           await signIn("credentials", {
             email: values.email,

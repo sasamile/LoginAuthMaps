@@ -80,7 +80,7 @@ const CourtCard = ({
 
   return (
     <Card
-      className={`transition-shadow hover:shadow-md cursor-pointer ${
+      className={`transition-shadow hover:shadow-md cursor-pointer bg-muted/50${
         selected ? "ring-2 ring-primary" : ""
       }`}
       onClick={() => router.push(`/dashboard/${court.id}`)}
