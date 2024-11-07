@@ -18,7 +18,8 @@ function ReservasPage() {
       return;
     }
     const res = await getreservas(session?.user.email);
-    if (res) {
+    if (Array.isArray(res)) {
+      // Check if res is an array
       // Transform the data to match the Reservation type
       const transformedReserves: Reservation[] = res.map((item) => ({
         ...item,
