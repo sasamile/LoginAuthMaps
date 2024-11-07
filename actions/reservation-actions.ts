@@ -139,5 +139,10 @@ export async function getreservas(email: string) {
       include: { court: true },
     });
     return res;
-  } catch (error) {}
+  } catch (error) {
+    return {
+      error:
+        "No se pudo verificar la disponibilidad. Por favor, inténtalo de nuevo.",
+    };
+  }
 }

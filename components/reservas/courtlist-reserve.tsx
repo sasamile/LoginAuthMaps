@@ -58,7 +58,7 @@ export default function CourtListReserve({ reservas }: CourtListReserveProps) {
   return (
     <div className=" max-w-5xl space-y-4 mx-auto py-12">
       {reservas?.map((reserva) => (
-        <Card key={reserva.id} className="overflow-hidden bg-muted/50">
+        <Card key={reserva.id} className="overflow-hidden bg-slate-200 dark:bg-muted/50">
           <CardContent className="p-0">
             <div className="flex flex-col md:flex-row">
               <div className="relative w-full md:w-1/3 ">

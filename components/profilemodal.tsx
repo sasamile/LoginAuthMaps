@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dialog";
 import { uploadFile } from "@/actions/uploadthing-actions";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 export interface UserData {
   id: string;
@@ -42,6 +43,7 @@ function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imageSrc, setImageSrc] = useState<string>("");
 
   useEffect(() => {
     const loadUser = async () => {
@@ -67,16 +69,22 @@ function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
   }, [session, isOpen]);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+    const file = e.target.files && e.target.files[0];
+
     if (file) {
-      setImageFile(file);
-      const reader = new FileReader();
-      reader.onload = () => {
-        setEditedUser((prev) =>
-          prev ? { ...prev, image: reader.result as string } : null
+      const maxSizeInBytes = 1 * 1024 * 1024; // Tamaño máximo de la imagen 4MB
+      if (file.size > maxSizeInBytes) {
+        setImageSrc("");
+        toast.error(
+          "La imagen seleccionada excede el tamaño máximo permitido de 4MB."
         );
-      };
-      reader.readAsDataURL(file);
+        return;
+      }
+
+      setImageFile(file);
+
+      const src = URL.createObjectURL(file);
+      setImageSrc(src);
     }
   };
 
@@ -98,7 +106,7 @@ function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
         const response = await uploadFile(formData);
 
         if (response?.success && response.fileUrl) {
-          await patchUser(editedUser);
+          await patchUser(editedUser,response.fileUrl);
           setEditedUser(null);
           setImageFile(null);
           setIsLoading(false);
@@ -110,6 +118,7 @@ function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
       setIsEditing(false);
       toast.success("Perfil actualizado exitosamente");
       onClose();
+      window.location.reload();
     } catch (error) {
       console.error("Error updating profile:", error);
       toast.error("Error al actualizar el perfil");
@@ -143,7 +152,7 @@ function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                 <div className="relative group">
                   <Avatar className="w-32 h-32 border-4 border-primary">
                     <AvatarImage
-                      src={editedUser.image ?? ""}
+                      src={editedUser.image ?? imageSrc}
                       alt={editedUser.name}
                     />
                     <AvatarFallback className="text-4xl font-bold bg-primary text-primary-foreground">

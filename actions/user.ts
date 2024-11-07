@@ -34,7 +34,7 @@ export const getUserById = async (id?: string) => {
   }
 };
 
-export const patchUser = async (values: UserData) => {
+export const patchUser = async (values: UserData, fileUrl: string) => {
   try {
     const user = await db.user.update({
       where: { id: values.id },
@@ -43,8 +43,13 @@ export const patchUser = async (values: UserData) => {
         email: values.email,
         lastname: values.lastname,
         phone: values.phone,
-        image:values.image
+        image: fileUrl,
       },
     });
-  } catch (error) {}
+    return user;
+  } catch (error) {
+    return {
+      error: "",
+    };
+  }
 };
