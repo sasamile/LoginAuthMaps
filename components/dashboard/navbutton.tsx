@@ -46,11 +46,11 @@ export default function NavButton() {
               <Link href={nav.link} key={nav.label}>
                 <Button
                   variant={"ghost"}
-                  className={
+                  className={`${
                     patname === nav.link
                       ? " text-black dark:text-white"
                       : " text-gray-500 dark:text-gray-500"
-                  }
+                  } bg-inherit hover:bg-inherit`}
                 >
                   <nav.icon className="w-5 h-5" />
                   {nav.label}

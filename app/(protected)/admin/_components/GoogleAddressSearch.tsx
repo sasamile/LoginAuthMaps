@@ -10,13 +10,17 @@ interface Coordinates {
 }
 
 interface GoogleAddressSearchProps {
-  selectedAddress: (value: any) => void;
-  setCoordinates: (value: any) => void;
+  selectedAddress: (value: { label: string; value: any } | null) => void;
+  setCoordinates: (value: { lat: number; lng: number } | null) => void;
+  initialAddress?: string; // Add this optional prop
 }
+
+// ... existing imports ...
 
 const GoogleAddressSearch: React.FC<GoogleAddressSearchProps> = ({
   selectedAddress,
   setCoordinates,
+  initialAddress,
 }) => {
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_PLACE_API_KEY as string,
@@ -34,12 +38,14 @@ const GoogleAddressSearch: React.FC<GoogleAddressSearchProps> = ({
           placeholder: "Search Property Address",
           isClearable: true,
           className: "w-full dark:text-black",
+          defaultValue: initialAddress
+            ? { label: initialAddress, value: initialAddress }
+            : null, // Add this line
           styles: {
             control: (provided) => ({
               ...provided,
               background: "transparent",
               borderRadius: "0px",
-
             }),
           },
           onChange: (place) => {

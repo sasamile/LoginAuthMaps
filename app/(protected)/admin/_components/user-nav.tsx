@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { getUserByEmail } from "@/actions/user";
 import LogoutButton from "@/components/logout-button";
@@ -51,7 +51,7 @@ export function UserNav() {
 
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
-      if (event.shiftKey && event.key === "P") {
+      if (event.shiftKey && event.key === "}") {
         setIsProfileModalOpen(true);
       }
     };
@@ -101,15 +101,14 @@ export function UserNav() {
               className="cursor-pointer"
             >
               Perfil
-              <DropdownMenuShortcut>⇧P</DropdownMenuShortcut>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              Facturación
-              <DropdownMenuShortcut>⌘B</DropdownMenuShortcut>
+              <DropdownMenuShortcut>⇧{`}`}</DropdownMenuShortcut>
             </DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
-          <DropdownMenuItem className="w-full">
+          <DropdownMenuItem
+            className="w-full"
+            onClick={() => signOut({ callbackUrl: "/sign-in" })}
+          >
             <div className="w-full">
               <LogoutButton />
             </div>

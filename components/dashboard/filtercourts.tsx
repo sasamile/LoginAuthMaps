@@ -8,10 +8,12 @@ import { Input } from "../ui/input";
 interface FilterFormProps {
   canchas: Court[];
   onFilter: (filtered: Court[]) => void;
+  selectedDate?: Date ;
+  setSelectedDate: (value: Date | undefined) => void; 
 }
 
-function Filtercourts({ canchas, onFilter }: FilterFormProps) {
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+function Filtercourts({ canchas, onFilter,selectedDate,setSelectedDate }: FilterFormProps) {
+  // const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
   const [price, setPrice] = useState(100000);

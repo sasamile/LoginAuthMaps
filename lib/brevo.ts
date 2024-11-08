@@ -1,4 +1,8 @@
-import { TransactionalEmailsApi, SendSmtpEmail, TransactionalEmailsApiApiKeys } from "@getbrevo/brevo";
+import {
+  TransactionalEmailsApi,
+  SendSmtpEmail,
+  TransactionalEmailsApiApiKeys,
+} from "@getbrevo/brevo";
 
 // Instanciar API de correos transaccionales
 const apiInstance = new TransactionalEmailsApi();
@@ -59,16 +63,16 @@ export async function SendEmail(email: string, name: string) {
   try {
     // Enviar el correo transaccional
     await apiInstance.sendTransacEmail(smtpEmail);
-    console.log('Email sent successfully');
+    console.log("Email sent successfully");
   } catch (error) {
-    console.error('Error sending email:', error);
+    console.error("Error sending email:", error);
   }
 }
 
-export async function sendPasswordResetEmail(email: string, token: string,) {
-    smtpEmail.subject = "Recuperar Contraseña";
-    smtpEmail.to = [{ email: email}];
-    smtpEmail.htmlContent = `
+export async function sendPasswordResetEmail(email: string, token: string) {
+  smtpEmail.subject = "Recuperar Contraseña";
+  smtpEmail.to = [{ email: email }];
+  smtpEmail.htmlContent = `
      <html>
     <head>
         <style>
@@ -100,22 +104,73 @@ export async function sendPasswordResetEmail(email: string, token: string,) {
     </body>
 </html>
     `;
-    smtpEmail.sender = { name: "CourtMaps", email: "nspes2020@gmail.com" };
-  
-    try {
-      // Enviar el correo transaccional
-      await apiInstance.sendTransacEmail(smtpEmail);
-      console.log('Email sent successfully');
-    } catch (error) {
-      console.error('Error sending email:', error);
-    }
-  }
-  
+  smtpEmail.sender = { name: "CourtMaps", email: "nspes2020@gmail.com" };
 
-  export async function DeleteEmail(email: string, name: string) {
-    smtpEmail.subject = "Registro Fallido - Cuenta No Cumple con los Requisitos";
-    smtpEmail.to = [{ email: email, name: name }];
-    smtpEmail.htmlContent = `
+  try {
+    // Enviar el correo transaccional
+    await apiInstance.sendTransacEmail(smtpEmail);
+    console.log("Email sent successfully");
+  } catch (error) {
+    console.error("Error sending email:", error);
+  }
+}
+
+export async function LinkEmailPage(email: string, paymentLink?: string) {
+  smtpEmail.subject = "Acción Requerida: Completa tu Registro en CourtMaps";
+  smtpEmail.to = [{ email: email }];
+  smtpEmail.htmlContent = `
+     <html>
+          <head>
+              <style>
+                  @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+                  body { font-family: 'Roboto', sans-serif; background-color: #f4f4f4; margin: 0; padding: 0; color: #333; }
+                  .container { width: 100%; max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); padding: 20px; }
+                  h1 { text-align: center; color: #dc3545; font-size: 28px; font-weight: 700; margin-bottom: 20px; }
+                  p { line-height: 1.6; color: #555; font-size: 16px; }
+                  .button { display: inline-block; padding: 12px 24px; background-color: #007bff; color: #ffffff; text-decoration: none; border-radius: 5px; font-weight: bold; margin-top: 20px; text-align: center; }
+                  .cta { text-align: center; margin-top: 20px; }
+                  .footer { text-align: center; margin-top: 40px; font-size: 12px; color: #888; }
+                  .icon { display: inline-block; margin-bottom: 8px; }
+                  img { max-width: 100%; border-radius: 8px; margin-bottom: 20px; }
+              </style>
+          </head>
+          <body>
+              <div class="container">
+                  <h1>¡Importante! Completa tu Pago</h1>
+                  
+                  <p>Para finalizar tu registro y asegurar tu lugar, es necesario completar el pago. Tu reserva está pendiente y será cancelada automáticamente si no se completa el pago en las próximas 48 horas.</p>
+                  
+                  <div class="cta">
+                  <p>Haz clic en el botón de abajo para completar el pago:</p>
+                      <a href="${paymentLink}" class="button">Completar Pago</a>
+                  </div>
+  
+                  <p>Si no solicitaste este correo o ya completaste el proceso, por favor ignora este mensaje.</p>
+  
+                  <div class="footer">
+                      <p>© 2024 CourtMaps. Todos los derechos reservados.</p>
+                      <p>Síguenos en nuestras redes sociales:</p>
+                      <p><a href="https://facebook.com/courtmapsoficial">Facebook</a> | <a href="https://instagram.com/courtmapsoficial">Instagram</a></p>
+                  </div>
+              </div>
+          </body>
+      </html>
+    `;
+  smtpEmail.sender = { name: "CourtMaps", email: "nspes2020@gmail.com" };
+
+  try {
+    // Enviar el correo transaccional
+    await apiInstance.sendTransacEmail(smtpEmail);
+    console.log("Email sent successfully");
+  } catch (error) {
+    console.error("Error sending email:", error);
+  }
+}
+
+export async function DeleteEmail(email: string, name: string) {
+  smtpEmail.subject = "Registro Fallido - Cuenta No Cumple con los Requisitos";
+  smtpEmail.to = [{ email: email, name: name }];
+  smtpEmail.htmlContent = `
      <html>
           <head>
               <style>
@@ -155,13 +210,13 @@ export async function sendPasswordResetEmail(email: string, token: string,) {
           </body>
       </html>
     `;
-    smtpEmail.sender = { name: "CourtMaps", email: "nspes2020@gmail.com" };
-  
-    try {
-      // Enviar el correo transaccional
-      await apiInstance.sendTransacEmail(smtpEmail);
-      console.log('Email sent successfully');
-    } catch (error) {
-      console.error('Error sending email:', error);
-    }
+  smtpEmail.sender = { name: "CourtMaps", email: "nspes2020@gmail.com" };
+
+  try {
+    // Enviar el correo transaccional
+    await apiInstance.sendTransacEmail(smtpEmail);
+    console.log("Email sent successfully");
+  } catch (error) {
+    console.error("Error sending email:", error);
   }
+}

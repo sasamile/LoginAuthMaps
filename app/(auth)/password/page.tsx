@@ -45,18 +45,9 @@ function PasswordResetPage() {
 
   return (
     <div className="flex h-screen">
-      <div className="relative hidden lg:block w-1/2 h-full">
-        <Image
-          src="/img4.jpg"
-          alt="Login"
-          layout="fill"
-          objectFit="cover"
-          priority
-        />
-      </div>
-      <div className="w-full lg:w-1/2 flex items-center justify-center">
-        <div className="bg-white p-14 rounded-lg w-full max-w-md shadow-2xl">
-          <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
+      <div className="w-full  flex items-center justify-center">
+        <div className="p-14 rounded-lg w-full">
+          <h2 className="text-2xl font-bold text-center  mb-6">
             Recuperar Contraseña
           </h2>
           <Form {...form}>

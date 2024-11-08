@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Dialog,
@@ -10,13 +10,15 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { DollarSign } from "lucide-react";
 import { Court } from "@prisma/client";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { checkCourtAvailability } from "@/actions/reservation-actions";
-import { createReservation } from "@/actions/reservation-actions";
+import {
+  checkCourtAvailability,
+  createReservation,
+} from "@/actions/reservation-actions";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface ReservationModalProps {
   isOpen: boolean;
@@ -34,20 +36,54 @@ const ReservationModal: React.FC<ReservationModalProps> = ({
   onClose,
   court,
 }) => {
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   const router = useRouter();
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
   const [selectedTimeSlots, setSelectedTimeSlots] = useState<string[]>([]);
   const [totalPrice, setTotalPrice] = useState<number>(0);
   const [availableHours, setAvailableHours] = useState<TimeSlot[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingHours, setIsLoadingHours] = useState(false);
+
+  const fetchAvailableHours = useCallback(async () => {
+    if (!court || !selectedDate) return;
+
+    setIsLoadingHours(true);
+    const start = parseInt(court.startTime);
+    const end = parseInt(court.endTime);
+
+    try {
+      const availabilityPromises = [];
+      for (let i = start; i <= end; i++) {
+        const time = `${i.toString().padStart(2, "0")}:00`;
+        const endTime = `${(i + 1).toString().padStart(2, "0")}:00`;
+        availabilityPromises.push(
+          checkCourtAvailability(court.id, selectedDate, time, endTime)
+        );
+      }
+
+      const results = await Promise.all(availabilityPromises);
+
+      const hours: TimeSlot[] = results.map((result, index) => ({
+        time: `${(start + index).toString().padStart(2, "0")}:00`,
+        isAvailable: result.available ?? false, // Use nullish coalescing to default to false
+      }));
+
+      setAvailableHours(hours);
+    } catch (error) {
+      console.error("Error fetching available hours:", error);
+      toast.error("Error al cargar los horarios disponibles");
+    } finally {
+      setIsLoadingHours(false);
+    }
+  }, [court, selectedDate]);
 
   useEffect(() => {
     if (court && selectedDate) {
       setSelectedTimeSlots([]);
       fetchAvailableHours();
     }
-  }, [court, selectedDate]);
+  }, [court, selectedDate, fetchAvailableHours]);
 
   useEffect(() => {
     if (selectedTimeSlots.length > 0 && court) {
@@ -58,88 +94,12 @@ const ReservationModal: React.FC<ReservationModalProps> = ({
     }
   }, [selectedTimeSlots, court]);
 
-  const fetchAvailableHours = async () => {
-    if (!court || !selectedDate) return;
-
-    const start = parseInt(court.startTime);
-    const end = parseInt(court.endTime);
-
-    // Crear array de promesas para todas las verificaciones
-    const availabilityChecks = [];
-
-    for (let i = start; i <= end; i++) {
-      const time = `${i.toString().padStart(2, "0")}:00`;
-      const endTime = `${(i + 1).toString().padStart(2, "0")}:00`;
-      const previousTime = `${(i - 1).toString().padStart(2, "0")}:00`;
-
-      // Agregar ambas verificaciones como un par
-      availabilityChecks.push(
-        Promise.all([
-          checkCourtAvailability(court.id, selectedDate, time, endTime),
-          checkCourtAvailability(court.id, selectedDate, previousTime, time),
-        ])
-      );
-    }
-
-    // Ejecutar todas las verificaciones en paralelo
-    const results = await Promise.all(availabilityChecks);
-
-    // Procesar resultados
-    const hours: TimeSlot[] = results.map((result, index) => {
-      const time = `${(start + index).toString().padStart(2, "0")}:00`;
-      const [currentSlot, previousSlot] = result;
-      return {
-        time,
-        isAvailable: (currentSlot.available && previousSlot.available) ?? false,
-      };
-    });
-
-    setAvailableHours(hours);
-  };
-
-  const isConsecutiveTime = (
-    selectedSlots: string[],
-    newTime: string
-  ): boolean => {
-    if (selectedSlots.length === 0) return true;
-
-    const newHour = parseInt(newTime);
-    const selectedHours = selectedSlots.map((time) => parseInt(time));
-    const minSelected = Math.min(...selectedHours);
-    const maxSelected = Math.max(...selectedHours);
-
-    // Solo permitir selección contigua
-    return (
-      newHour === minSelected - 1 ||
-      newHour === maxSelected + 1 ||
-      (newHour >= minSelected && newHour <= maxSelected)
-    );
-  };
-
   const handleTimeSlotClick = (time: string) => {
     setSelectedTimeSlots((prev) => {
       if (prev.includes(time)) {
-        // Si ya está seleccionado, eliminar todas las horas después de esta
-        const timeIndex = prev.indexOf(time);
-        return prev.slice(0, timeIndex);
+        return prev.filter((t) => t !== time);
       } else {
-        const timeHour = parseInt(time);
-        if (prev.length === 0) {
-          return [time];
-        }
-
-        // Obtener la primera hora seleccionada
-        const firstHour = parseInt(prev[0]);
-
-        // Crear un array con todas las horas consecutivas desde la primera hasta la nueva
-        const newSlots = [];
-        const start = Math.min(firstHour, timeHour);
-        const end = Math.max(firstHour, timeHour);
-
-        for (let i = start; i <= end; i++) {
-          newSlots.push(`${i.toString().padStart(2, "0")}:00`);
-        }
-
+        const newSlots = [...prev, time].sort();
         return newSlots;
       }
     });
@@ -151,24 +111,13 @@ const ReservationModal: React.FC<ReservationModalProps> = ({
       return;
     }
 
-    if (!selectedDate) {
-      toast.error("Por favor seleccione una fecha");
-      return;
-    }
-
-    if (selectedTimeSlots.length === 0) {
-      toast.error("Por favor seleccione al menos un horario");
-      return;
-    }
-
-    if (!court) {
-      toast.error("No se ha seleccionado una cancha válida");
+    if (!selectedDate || selectedTimeSlots.length === 0 || !court) {
+      toast.error("Por favor complete todos los campos");
       return;
     }
 
     try {
       setIsLoading(true);
-
       const result = await createReservation({
         courtId: court.id,
         email: session.user.email,
@@ -184,8 +133,8 @@ const ReservationModal: React.FC<ReservationModalProps> = ({
         return;
       }
 
+      router.push("/dashboard/reservas");
       toast.success("Reserva creada exitosamente");
-      router.refresh();
       onClose();
     } catch (error) {
       console.error("Reservation error:", error);
@@ -211,7 +160,6 @@ const ReservationModal: React.FC<ReservationModalProps> = ({
         </DialogHeader>
 
         <div className="flex flex-col md:flex-row gap-3">
-          {/* Calendario */}
           <div className="w-full md:w-1/2">
             <Calendar
               mode="single"
@@ -227,39 +175,35 @@ const ReservationModal: React.FC<ReservationModalProps> = ({
             />
           </div>
 
-          {/* Horarios */}
           <div className="w-full md:w-1/2 space-y-2">
             <div className="bg-muted/10 p-2 rounded-lg">
               <div className="grid grid-cols-3 gap-1">
-                {availableHours.map((slot) => {
-                  const isDisabled =
-                    !slot.isAvailable ||
-                    (selectedTimeSlots.length > 0 &&
-                      !isConsecutiveTime(selectedTimeSlots, slot.time));
-
-                  return (
-                    <Button
-                      key={slot.time}
-                      variant={
-                        selectedTimeSlots.includes(slot.time)
-                          ? "default"
-                          : "outline"
-                      }
-                      onClick={() => handleTimeSlotClick(slot.time)}
-                      disabled={isDisabled}
-                      className={`
-                      text-xs py-1 h-8
-                      ${isDisabled && "opacity-50"}
-                      ${
-                        selectedTimeSlots.includes(slot.time) &&
-                        "bg-primary text-primary-foreground"
-                      }
-                    `}
-                    >
-                      {slot.time}
-                    </Button>
-                  );
-                })}
+                {isLoadingHours
+                  ? Array.from({ length: 12 }).map((_, index) => (
+                      <Skeleton key={index} className="h-8 w-full" />
+                    ))
+                  : availableHours.map((slot) => (
+                      <Button
+                        key={slot.time}
+                        variant={
+                          selectedTimeSlots.includes(slot.time)
+                            ? "default"
+                            : "outline"
+                        }
+                        onClick={() => handleTimeSlotClick(slot.time)}
+                        disabled={!slot.isAvailable}
+                        className={`
+                        text-xs py-1 h-8
+                        ${!slot.isAvailable && "opacity-50"}
+                        ${
+                          selectedTimeSlots.includes(slot.time) &&
+                          "bg-primary text-primary-foreground"
+                        }
+                      `}
+                      >
+                        {slot.time}
+                      </Button>
+                    ))}
               </div>
 
               <div className="mt-2 text-xs space-y-1">
