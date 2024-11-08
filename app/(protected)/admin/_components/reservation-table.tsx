@@ -36,8 +36,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { MoreVertical, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { useRouter } from "next/navigation";
 
 export default function ReservationTable() {
+  const router = useRouter()
   const { data: session } = useSession();
   const [reservations, setReservations] = useState<
     {
@@ -138,7 +140,7 @@ export default function ReservationTable() {
 
   const generatePaymentLinks = async () => {
     // Implement the logic to generate payment links for all reservations
-    console.log("Generating payment links...");
+    router.push("")
   };
 
   const getStatusBadge = (status: ReservationStatus) => {

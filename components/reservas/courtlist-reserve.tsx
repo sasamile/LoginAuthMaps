@@ -160,11 +160,16 @@ export default function CourtListReserve({ reservas }: CourtListReserveProps) {
                     {new Date(reserva.date).toLocaleDateString()}
                   </TableCell>
                   <TableCell>{`${reserva.startTime} - ${reserva.endTime}`}</TableCell>
-                  {reserva.court.price *
-                    calculateDurationInHours(
-                      reserva.startTime,
-                      reserva.endTime
-                    )}
+                  <TableCell>
+                    $
+                    {(
+                      reserva.court.price *
+                      calculateDurationInHours(
+                        reserva.startTime,
+                        reserva.endTime
+                      )
+                    ).toFixed(2)}
+                  </TableCell>
                   <TableCell>
                     <Badge
                       className={cn(
