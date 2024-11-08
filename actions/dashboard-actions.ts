@@ -12,6 +12,7 @@ export async function getDashboardData(email: string) {
       throw new Error("El usuario con el email proporcionado no existe.");
     }
 
+    // Obtener todas las reservas (incluyendo PENDING y SUCCESS)
     const totalReservations = await db.reservation.count({
       where: {
         court: {
@@ -20,6 +21,7 @@ export async function getDashboardData(email: string) {
       },
     });
 
+    // Calcular ingresos solo de reservas exitosas
     const totalIncome = await db.reservation.aggregate({
       _sum: {
         totalPrice: true,
@@ -42,6 +44,27 @@ export async function getDashboardData(email: string) {
     const monthlyData = await getMonthlyData(user.id);
     const recentBookings = await getRecentBookings(user.id);
 
+    const reservationDetails = await db.reservation.findMany({
+      where: {
+        court: {
+          userId: user.id,
+        },
+        status: ReservationStatus.SUCCESS,
+      },
+      select: {
+        id: true,
+        totalPrice: true,
+        startTime: true,
+        endTime: true,
+        court: {
+          select: {
+            name: true,
+            price: true,
+          }
+        }
+      }
+    });
+
     return {
       totalReservations,
       totalIncome: totalIncome._sum.totalPrice || 0,
@@ -49,6 +72,7 @@ export async function getDashboardData(email: string) {
       occupancyRate,
       monthlyData,
       recentBookings,
+      debug: reservationDetails,
     };
   } catch (error) {
     console.error("Error fetching dashboard data:", error);
@@ -56,27 +80,32 @@ export async function getDashboardData(email: string) {
   }
 }
 
-async function calculateOccupancyRate(userId: string) {
-    const totalSlots = await db.court.count({
-      where: {
+async function getRecentBookings(userId: string) {
+  return db.reservation.findMany({
+    where: {
+      court: {
         userId: userId,
       },
-    });
-  
-    const bookedSlots = await db.reservation.count({
-      where: {
-        status: ReservationStatus.SUCCESS,
-        court: {
-          userId: userId,
+    },
+    include: {
+      user: {
+        select: {
+          name: true,
+          email: true,
         },
       },
-    });
-  
-    if (totalSlots > 0) {
-      return Math.round((bookedSlots / totalSlots) * 100);
-    }
-    return 0;
-  }
+      court: {
+        select: {
+          name: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+    take: 10, // Aumentamos el límite para mostrar más reservas recientes
+  });
+}
 
 async function getMonthlyData(userId: string) {
   const currentYear = new Date().getFullYear();
@@ -97,7 +126,10 @@ async function getMonthlyData(userId: string) {
     },
   });
 
+  // Inicializar array con 12 meses
   const monthlyTotals = Array(12).fill(0);
+
+  // Sumar los totales por mes
   monthlyData.forEach((data) => {
     const month = new Date(data.date).getMonth();
     monthlyTotals[month] += data._sum.totalPrice || 0;
@@ -111,29 +143,42 @@ async function getMonthlyData(userId: string) {
   }));
 }
 
-async function getRecentBookings(userId: string) {
-  return db.reservation.findMany({
+async function calculateOccupancyRate(userId: string) {
+  const currentMonth = new Date();
+  const startOfMonth = new Date(
+    currentMonth.getFullYear(),
+    currentMonth.getMonth(),
+    1
+  );
+  const endOfMonth = new Date(
+    currentMonth.getFullYear(),
+    currentMonth.getMonth() + 1,
+    0
+  );
+
+  const totalReservations = await db.reservation.count({
     where: {
       court: {
         userId: userId,
       },
-    },
-    take: 5,
-    orderBy: {
-      createdAt: "desc",
-    },
-    include: {
-      user: {
-        select: {
-          name: true,
-          email: true,
-        },
-      },
-      court: {
-        select: {
-          name: true,
-        },
+      date: {
+        gte: startOfMonth,
+        lte: endOfMonth,
       },
     },
   });
+
+  const totalCourts = await db.court.count({
+    where: {
+      userId: userId,
+    },
+  });
+
+  // Assuming each court can have 1 reservation per day
+  const daysInMonth = endOfMonth.getDate();
+  const maxPossibleReservations = totalCourts * daysInMonth;
+
+  return maxPossibleReservations > 0
+    ? Math.round((totalReservations / maxPossibleReservations) * 100)
+    : 0;
 }

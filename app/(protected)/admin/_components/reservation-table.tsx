@@ -42,7 +42,7 @@ export default function ReservationTable() {
   const [reservations, setReservations] = useState<
     {
       user: { email: string; name: string };
-      court: { name: string };
+      court: { name: string; price: number };
       date: Date;
       startTime: string;
       endTime: string;
@@ -74,7 +74,10 @@ export default function ReservationTable() {
 
   const fetchReservations = async () => {
     try {
-      const filteredReservations = await getFilteredReservations(filters);
+      const filteredReservations = await getFilteredReservations(
+        filters,
+        session?.user.email ?? ""
+      );
       setReservations(filteredReservations);
     } catch (error) {
       console.error("Failed to fetch reservations:", error);
@@ -167,6 +170,12 @@ export default function ReservationTable() {
     return <div>Access Denied</div>;
   }
 
+  const calculateDurationInHours = (startTime: string, endTime: string) => {
+    const start = new Date(`1970-01-01T${startTime}:00Z`);
+    const end = new Date(`1970-01-01T${endTime}:00Z`);
+    return (end.getTime() - start.getTime()) / (1000 * 60 * 60);
+  };
+
   return (
     <Card className="w-full">
       <CardHeader className="flex flex-row items-center justify-between">
@@ -223,6 +232,7 @@ export default function ReservationTable() {
               <TableHead>Time</TableHead>
               <TableHead>User</TableHead>
               <TableHead>Court</TableHead>
+              <TableHead>Price</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Reference</TableHead>
               <TableHead>Payment Link</TableHead>
@@ -238,6 +248,13 @@ export default function ReservationTable() {
                 <TableCell>{`${reservation.startTime} - ${reservation.endTime}`}</TableCell>
                 <TableCell>{reservation.user.name}</TableCell>
                 <TableCell>{reservation.court.name}</TableCell>
+                <TableCell>
+                  {reservation.court.price *
+                    calculateDurationInHours(
+                      reservation.startTime,
+                      reservation.endTime
+                    )}
+                </TableCell>
                 <TableCell>{getStatusBadge(reservation.status)}</TableCell>
                 <TableCell>
                   <Input

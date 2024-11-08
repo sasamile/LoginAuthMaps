@@ -96,6 +96,12 @@ export default function CourtListReserve({ reservas }: CourtListReserveProps) {
     }
   }
 
+  const calculateDurationInHours = (startTime: string, endTime: string) => {
+    const start = new Date(`1970-01-01T${startTime}:00Z`);
+    const end = new Date(`1970-01-01T${endTime}:00Z`);
+    return (end.getTime() - start.getTime()) / (1000 * 60 * 60);
+  };
+
   return (
     <div className="max-w-7xl space-y-8 mx-auto py-12 px-4 sm:px-6 lg:px-8">
       <h2 className="text-3xl font-extrabold text-gray-900 dark:text-gray-100">
@@ -154,7 +160,11 @@ export default function CourtListReserve({ reservas }: CourtListReserveProps) {
                     {new Date(reserva.date).toLocaleDateString()}
                   </TableCell>
                   <TableCell>{`${reserva.startTime} - ${reserva.endTime}`}</TableCell>
-                  <TableCell>${reserva.totalPrice.toFixed(2)}</TableCell>
+                  {reserva.court.price *
+                    calculateDurationInHours(
+                      reserva.startTime,
+                      reserva.endTime
+                    )}
                   <TableCell>
                     <Badge
                       className={cn(

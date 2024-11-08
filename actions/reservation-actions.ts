@@ -6,7 +6,7 @@ import { revalidatePath } from "next/cache";
 import { getUserByEmail } from "./user";
 import { auth } from "@/auth";
 import { ReservationStatus } from "@prisma/client";
-import { LinkEmailPage } from "@/lib/brevo";
+import { LinkEmailPage, StatusEmail } from "@/lib/brevo";
 
 interface CreateReservationParams {
   courtId: string;
@@ -177,17 +177,21 @@ export async function getreservassucces(email: string) {
   }
 }
 
-export async function getFilteredReservations(filters: {
-  date?: string;
-  startTime?: string;
-  endTime?: string;
-  status?: ReservationStatus;
-  reference?: string;
-  courtName?: string;
-}) {
-  const session = await auth();
-  if (!session || session.user.role !== "ADMIN") {
-    throw new Error("Unauthorized");
+export async function getFilteredReservations(
+  filters: {
+    date?: string;
+    startTime?: string;
+    endTime?: string;
+    status?: ReservationStatus;
+    reference?: string;
+    courtName?: string;
+  },
+  email: string
+) {
+  const user = await getUserByEmail(email);
+
+  if (!user) {
+    throw new Error("El usuario con el ID proporcionado no existe.");
   }
 
   const { date, startTime, endTime, status, reference, courtName } = filters;
@@ -217,6 +221,10 @@ export async function getFilteredReservations(filters: {
       ...(status && { status }),
       ...(reference && { referencia: { contains: reference } }),
       ...(courtName && { court: { name: { contains: courtName } } }),
+      // Añadir filtro para mostrar solo las reservaciones de las canchas del admin actual
+      court: {
+        userId: user.id,
+      },
     },
     include: {
       user: {
@@ -228,6 +236,7 @@ export async function getFilteredReservations(filters: {
       court: {
         select: {
           name: true,
+          price: true,
         },
       },
     },
@@ -267,20 +276,36 @@ export async function updateReservationStatus(
     },
   });
 
-  // Enviar correo al usuario con el link de pago
+  // Enviar correo al usuario con el link de pago o notificación de estado
   try {
-    await LinkEmailPage(updatedReservation.user.email, paymentLink);
-    console.log("Email sent successfully to:", updatedReservation.user.email); // Agregar registro de éxito
+    if (
+      status === ReservationStatus.SUCCESS ||
+      status === ReservationStatus.DENIED
+    ) {
+      await StatusEmail(updatedReservation.user.email, status);
+      console.log(
+        "Notification email sent successfully to:",
+        updatedReservation.user.email
+      );
+    } else if (paymentLink) {
+      await LinkEmailPage(updatedReservation.user.email, paymentLink);
+      console.log(
+        "Payment link email sent successfully to:",
+        updatedReservation.user.email
+      );
+    }
   } catch (error) {
-    console.error("Failed to send email:", error); // Agregar registro de error
+    console.error("Failed to send email:", error);
   }
 
-  // Programar la verificación de pago
-  schedulePaymentCheck(
-    updatedReservation.id,
-    updatedReservation.date,
-    updatedReservation.startTime
-  );
+  // Programar la verificación de pago si es necesario
+  if (status === ReservationStatus.PENDING) {
+    schedulePaymentCheck(
+      updatedReservation.id,
+      updatedReservation.date,
+      updatedReservation.startTime
+    );
+  }
 
   return updatedReservation;
 }

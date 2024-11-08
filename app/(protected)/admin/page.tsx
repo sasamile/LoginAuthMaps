@@ -34,6 +34,12 @@ function AdminPage() {
   async function fetchDashboardData(email: string) {
     try {
       const data = await getDashboardData(email);
+      console.log("Dashboard data:", data);
+      if (data.debug) {
+        console.log("Individual reservations:", data.debug);
+        const sum = data.debug.reduce((acc, curr) => acc + curr.totalPrice, 0);
+        console.log("Manual sum:", sum);
+      }
       setDashboardData(data);
     } catch (err) {
       setError("Failed to fetch dashboard data");

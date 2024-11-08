@@ -220,3 +220,55 @@ export async function DeleteEmail(email: string, name: string) {
     console.error("Error sending email:", error);
   }
 }
+
+export async function StatusEmail(email: string, status: string) {
+  smtpEmail.subject = "Estado de tu Reserva en CourtMaps";
+  smtpEmail.to = [{ email: email }];
+  smtpEmail.htmlContent = `
+     <html>
+          <head>
+              <style>
+                  @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+                  body { font-family: 'Roboto', sans-serif; background-color: #f4f4f4; margin: 0; padding: 0; color: #333; }
+                  .container { width: 100%; max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); padding: 20px; }
+                  h1 { text-align: center; color: #dc3545; font-size: 28px; font-weight: 700; margin-bottom: 20px; }
+                  p { line-height: 1.6; color: #555; font-size: 16px; }
+                  .status { color: #0056b3; font-weight: bold; }
+                  .button { display: inline-block; padding: 12px 24px; background-color: #007bff; color: #ffffff; text-decoration: none; border-radius: 5px; font-weight: bold; margin-top: 20px; text-align: center; }
+                  .cta { text-align: center; margin-top: 20px; }
+                  .footer { text-align: center; margin-top: 40px; font-size: 12px; color: #888; }
+                  .icon { display: inline-block; margin-bottom: 8px; }
+                  img { max-width: 100%; border-radius: 8px; margin-bottom: 20px; }
+              </style>
+          </head>
+          <body>
+              <div class="container">
+                  <h1>Estado Actual de tu Reserva</h1>
+                  
+                  <p>Querido usuario,</p>
+                  <p>El estado actual de tu reserva es: <span class="status">${status}</span>.</p>
+                  
+                  <p>Estamos en proceso de verificar los detalles de tu pago y la disponibilidad de la reserva. Recibirás una confirmación por correo electrónico una vez que todo esté confirmado.</p>
+                  
+                  <div class="cta">
+                      <p>Si tienes alguna pregunta o necesitas realizar algún cambio, no dudes en contactarnos. Estamos aquí para ayudarte a asegurar tu experiencia perfecta.</p>
+                  </div>
+  
+                  <div class="footer">
+                      <p>Gracias por elegirnos,</p>
+                      <p>El equipo de CourtMaps</p>
+                  </div>
+              </div>
+          </body>
+      </html>
+    `;
+  smtpEmail.sender = { name: "CourtMaps", email: "nspes2020@gmail.com" };
+
+  try {
+    // Enviar el correo transaccional
+    await apiInstance.sendTransacEmail(smtpEmail);
+    console.log("Email sent successfully");
+  } catch (error) {
+    console.error("Error sending email:", error);
+  }
+}
