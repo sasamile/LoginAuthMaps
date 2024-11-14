@@ -130,7 +130,7 @@ export function EditCourtForm({
                 <FormItem>
                   <FormLabel>Descripción</FormLabel>
                   <FormControl>
-                    <Textarea {...field} />
+                    <Textarea rows={8} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -150,7 +150,6 @@ export function EditCourtForm({
                 </FormItem>
               )}
             />
-
           </div>
 
           {/* Columna central */}
@@ -261,34 +260,29 @@ export function EditCourtForm({
                       </div>
                     ))}
                   </div>
-                  <div className="mt-4">
-                    <FileUpload
-                      endpoint="ImageFile"
-                      onChange={(urls) => {
-                        // Limit to 3 images total
-                        const currentUrls = field.value || [];
-                        const newUrls = [...currentUrls, ...urls];
-                        if (newUrls.length > 3) {
-                          alert("Solo se permiten hasta 3 imágenes");
+                  {field.value.length < 3 && (
+                    <div className="mt-4">
+                      <FileUpload
+                        endpoint="ImageFile"
+                        onChange={(urls) => {
+                          const currentUrls = field.value || [];
+                          const newUrls = [...currentUrls, ...urls];
                           field.onChange(newUrls.slice(0, 3));
-                        } else {
-                          field.onChange(newUrls);
-                        }
-                      }}
-                    />
-                  </div>
+                        }}
+                      />
+                    </div>
+                  )}
                   <FormMessage />
                 </FormItem>
               )}
             />
+            <div className="px-6 pb-6 flex justify-end gap-2 items-end w-full">
+              <Button type="button" variant="outline" onClick={onClose}>
+                Cancelar
+              </Button>
+              <Button type="submit">Guardar cambios</Button>
+            </div>
           </div>
-        </div>
-
-        <div className="px-6 pb-6 flex justify-end gap-2 items-end w-full">
-          <Button type="button" variant="outline" onClick={onClose}>
-            Cancelar
-          </Button>
-          <Button type="submit">Guardar cambios</Button>
         </div>
       </form>
     </Form>

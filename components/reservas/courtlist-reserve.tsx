@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import {
   CalendarIcon,
@@ -9,6 +9,7 @@ import {
   CreditCardIcon,
   XIcon,
   ExternalLinkIcon,
+  Loader2,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -71,7 +72,8 @@ interface CourtListReserveProps {
 
 export default function CourtListReserve({ reservas }: CourtListReserveProps) {
   const pathname = usePathname();
-  const { theme } = useTheme();
+  const { theme, systemTheme } = useTheme();
+  const [isLoading, setIsLoading] = useState(true);
   const [selectedReservation, setSelectedReservation] =
     useState<Reservation | null>(null);
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
@@ -82,6 +84,14 @@ export default function CourtListReserve({ reservas }: CourtListReserveProps) {
       ? words.slice(0, wordLimit).join(" ") + "..."
       : description;
   }
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1000); // Ajusta este tiempo según necesites
+
+    return () => clearTimeout(timer);
+  }, []);
 
   function getStatusColor(status: string) {
     switch (status.toLowerCase()) {
@@ -96,10 +106,17 @@ export default function CourtListReserve({ reservas }: CourtListReserveProps) {
     }
   }
 
-  const calculateDurationInHours = (startTime: string, endTime: string) => {
-    const start = new Date(`1970-01-01T${startTime}:00Z`);
-    const end = new Date(`1970-01-01T${endTime}:00Z`);
-    return (end.getTime() - start.getTime()) / (1000 * 60 * 60);
+  const getImageSource = () => {
+    // Si el tema es system, usamos systemTheme para determinar la imagen
+    if (theme === "system") {
+      return systemTheme === "dark"
+        ? "/ampty-alerts-white.svg"
+        : "/ampty-alerts-black.svg";
+    }
+    // Si no es system, usamos la lógica original
+    return theme === "dark"
+      ? "/ampty-alerts-white.svg"
+      : "/ampty-alerts-black.svg";
   };
 
   return (
@@ -112,16 +129,19 @@ export default function CourtListReserve({ reservas }: CourtListReserveProps) {
         )}
       </h2>
 
-      {!reservas || reservas.length === 0 ? (
+      {isLoading ? (
+        <div className="flex justify-center items-center min-h-[200px]">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <span className="ml-2 text-gray-500 dark:text-gray-400">
+            Cargando reservas...
+          </span>
+        </div>
+      ) : !reservas || reservas.length === 0 ? (
         <div className="text-center">
           <div className="flex justify-center items-center flex-col">
             <div>
               <Image
-                src={
-                  theme === "dark"
-                    ? "/ampty-alerts-white.svg"
-                    : "/ampty-alerts-black.svg"
-                }
+                src={getImageSource()}
                 alt="Iconsvg"
                 width={500}
                 height={500}
