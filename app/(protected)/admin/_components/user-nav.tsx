@@ -51,7 +51,8 @@ export function UserNav() {
 
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
-      if (event.shiftKey && event.key === "}") {
+      if (event.ctrlKey && event.key.toLowerCase() === "b") {
+        event.preventDefault(); // Prevenir el comportamiento por defecto
         setIsProfileModalOpen(true);
       }
     };
@@ -101,7 +102,7 @@ export function UserNav() {
               className="cursor-pointer"
             >
               Perfil
-              <DropdownMenuShortcut>⇧{`}`}</DropdownMenuShortcut>
+              <DropdownMenuShortcut>⌃B</DropdownMenuShortcut>
             </DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />

@@ -82,8 +82,8 @@ function Filtercourts({
   return (
     <>
       <div
-        className={`col-span-12 md:col-span-4 lg:col-span-3 space-y-6 rounded-2xl ${
-          !isToggled && "hidden"
+        className={`col-span-12 md:col-span-4 lg:col-span-3 space-y-6 rounded-2xl md:block ${
+          !isToggled && "max-md:hidden"
         }`}
       >
         <Card className="bg-muted/50">

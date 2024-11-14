@@ -29,7 +29,7 @@ function Hero() {
           todo desde la palma de tu mano.
         </p>
         <Link href={"/sign-in"}>
-          <Button className="bg-blue-500 animate-bounce text-black px-6 font-semibold hover:bg-[#597441] hover:text-white">
+          <Button className="bg-blue-500 animate-bounce text-black px-6 font-semibold hover:bg-blue-700 hover:text-white">
             Comenzar
           </Button>
         </Link>
