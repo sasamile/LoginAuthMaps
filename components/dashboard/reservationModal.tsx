@@ -53,21 +53,51 @@ const ReservationModal: React.FC<ReservationModalProps> = ({
     const end = parseInt(court.endTime);
 
     try {
-      const availabilityPromises = [];
-      for (let i = start; i <= end; i++) {
-        const time = `${i.toString().padStart(2, "0")}:00`;
-        const endTime = `${(i + 1).toString().padStart(2, "0")}:00`;
-        availabilityPromises.push(
-          checkCourtAvailability(court.id, selectedDate, time, endTime)
-        );
+      const { existingReservations } = await checkCourtAvailability(
+        court.id,
+        selectedDate
+      );
+
+      const hours: TimeSlot[] = [];
+
+      for (let hour = start; hour < end; hour++) {
+        const currentTimeStr = `${hour.toString().padStart(2, "0")}:00`;
+
+        // Verificar si la hora actual está dentro de alguna reserva
+        const isReserved = existingReservations?.some((reservation) => {
+          const startHour = parseInt(reservation.startTime.split(":")[0]);
+          const endHour = parseInt(reservation.endTime.split(":")[0]);
+
+          // Cambio clave: incluir la hora final en el rango de horas reservadas
+          return hour >= startHour && hour < endHour;
+        });
+
+        hours.push({
+          time: currentTimeStr,
+          isAvailable: !isReserved,
+        });
       }
 
-      const results = await Promise.all(availabilityPromises);
+      // Procesar la última hora de cada reserva
+      existingReservations?.forEach((reservation) => {
+        const endHour = parseInt(reservation.endTime.split(":")[0]);
+        const endTimeStr = `${endHour.toString().padStart(2, "0")}:00`;
 
-      const hours: TimeSlot[] = results.map((result, index) => ({
-        time: `${(start + index).toString().padStart(2, "0")}:00`,
-        isAvailable: result.available ?? false, // Use nullish coalescing to default to false
-      }));
+        // Encontrar y marcar como no disponible la última hora de la reserva
+        const lastHourSlot = hours.find((slot) => slot.time === endTimeStr);
+        if (lastHourSlot) {
+          lastHourSlot.isAvailable = false;
+        }
+      });
+
+      console.log(
+        "Existing Reservations:",
+        existingReservations?.map((r) => ({
+          start: r.startTime,
+          end: r.endTime,
+        }))
+      );
+      console.log("Available Hours:", hours);
 
       setAvailableHours(hours);
     } catch (error) {
@@ -77,7 +107,6 @@ const ReservationModal: React.FC<ReservationModalProps> = ({
       setIsLoadingHours(false);
     }
   }, [court, selectedDate]);
-
   useEffect(() => {
     if (court && selectedDate) {
       setSelectedTimeSlots([]);
@@ -95,13 +124,87 @@ const ReservationModal: React.FC<ReservationModalProps> = ({
   }, [selectedTimeSlots, court]);
 
   const handleTimeSlotClick = (time: string) => {
+    // No permitir selección de slots no disponibles
+    const slot = availableHours.find((h) => h.time === time);
+    if (!slot?.isAvailable) {
+      return;
+    }
+
     setSelectedTimeSlots((prev) => {
       if (prev.includes(time)) {
-        return prev.filter((t) => t !== time);
-      } else {
-        const newSlots = [...prev, time].sort();
-        return newSlots;
+        // Si ya está seleccionado, removerlo y todos los que siguen
+        const index = prev.indexOf(time);
+        return prev.slice(0, index);
       }
+
+      if (prev.length === 0) {
+        // Primera selección
+        return [time];
+      }
+
+      // Verificar si es consecutivo y todas las horas intermedias están disponibles
+      const lastSelected = prev[prev.length - 1];
+      const lastHour = parseInt(lastSelected.split(":")[0]);
+      const currentHour = parseInt(time.split(":")[0]);
+
+      if (currentHour !== lastHour + 1) {
+        // Si no es consecutivo, comenzar nueva selección
+        return [time];
+      }
+
+      // Verificar que todas las horas intermedias estén disponibles
+      for (let h = lastHour; h <= currentHour; h++) {
+        const hourStr = `${h.toString().padStart(2, "0")}:00`;
+        const isAvailable = availableHours.find(
+          (slot) => slot.time === hourStr
+        )?.isAvailable;
+        if (!isAvailable) {
+          return [time]; // Si hay alguna hora no disponible, comenzar nueva selección
+        }
+      }
+
+      return [...prev, time].sort();
+    });
+  };
+
+  const renderTimeSlots = () => {
+    return availableHours.map((slot) => {
+      const isSelected = selectedTimeSlots.includes(slot.time);
+      const currentHour = parseInt(slot.time.split(":")[0]);
+
+      // Determine if this slot can be selected (is consecutive)
+      let canSelect = true;
+      if (selectedTimeSlots.length > 0) {
+        const lastSelectedHour = parseInt(
+          selectedTimeSlots[selectedTimeSlots.length - 1].split(":")[0]
+        );
+        canSelect = currentHour === lastSelectedHour + 1;
+      }
+
+      return (
+        <Button
+          key={slot.time}
+          variant={isSelected ? "default" : "outline"}
+          onClick={() => handleTimeSlotClick(slot.time)}
+          disabled={
+            !slot.isAvailable ||
+            (!isSelected && !canSelect && selectedTimeSlots.length > 0)
+          }
+          className={`
+            text-xs py-1 h-8
+            ${!slot.isAvailable && "opacity-50"}
+            ${isSelected && "bg-primary text-primary-foreground"}
+            ${
+              !canSelect &&
+              selectedTimeSlots.length > 0 &&
+              !isSelected &&
+              "opacity-50"
+            }
+          `}
+        >
+          {slot.time}
+        </Button>
+      );
     });
   };
 
@@ -182,28 +285,37 @@ const ReservationModal: React.FC<ReservationModalProps> = ({
                   ? Array.from({ length: 12 }).map((_, index) => (
                       <Skeleton key={index} className="h-8 w-full" />
                     ))
-                  : availableHours.map((slot) => (
-                      <Button
-                        key={slot.time}
-                        variant={
-                          selectedTimeSlots.includes(slot.time)
-                            ? "default"
-                            : "outline"
-                        }
-                        onClick={() => handleTimeSlotClick(slot.time)}
-                        disabled={!slot.isAvailable}
-                        className={`
-                        text-xs py-1 h-8
-                        ${!slot.isAvailable && "opacity-50"}
-                        ${
-                          selectedTimeSlots.includes(slot.time) &&
-                          "bg-primary text-primary-foreground"
-                        }
-                      `}
-                      >
-                        {slot.time}
-                      </Button>
-                    ))}
+                  : availableHours.map((slot) => {
+                      const isSelected = selectedTimeSlots.includes(slot.time);
+                      const canSelect =
+                        selectedTimeSlots.length === 0 ||
+                        (selectedTimeSlots.length > 0 &&
+                          parseInt(slot.time) ===
+                            parseInt(
+                              selectedTimeSlots[selectedTimeSlots.length - 1]
+                            ) +
+                              1);
+
+                      return (
+                        <Button
+                          key={slot.time}
+                          variant={isSelected ? "default" : "outline"}
+                          onClick={() => handleTimeSlotClick(slot.time)}
+                          disabled={!slot.isAvailable}
+                          className={`
+                  text-xs py-1 h-8
+                  ${
+                    !slot.isAvailable &&
+                    "opacity-50 cursor-not-allowed bg-gray-200"
+                  }
+                  ${isSelected && "bg-primary text-primary-foreground"}
+                `}
+                        >
+                          {slot.time}
+                          {!slot.isAvailable && " 🔒"}
+                        </Button>
+                      );
+                    })}
               </div>
 
               <div className="mt-2 text-xs space-y-1">

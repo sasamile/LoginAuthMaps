@@ -84,41 +84,47 @@ export async function createReservation(data: CreateReservationParams) {
   }
 }
 
+
+
 export async function checkCourtAvailability(
   courtId: string,
-  date: Date,
-  startTime: string,
-  endTime: string
+  date: Date
 ) {
   try {
-    const existingReservation = await db.reservation.findFirst({
+    // Asegurarnos de que la fecha esté en el formato correcto
+    const startOfDay = new Date(date);
+    startOfDay.setHours(0, 0, 0, 0);
+    
+    const endOfDay = new Date(date);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    const existingReservations = await db.reservation.findMany({
       where: {
         courtId,
-        date,
-        status: { not: ReservationStatus.DENIED },
-        OR: [
-          {
-            AND: [
-              { startTime: { lte: startTime } },
-              { endTime: { gt: startTime } },
-            ],
-          },
-          {
-            AND: [
-              { startTime: { lt: endTime } },
-              { endTime: { gte: endTime } },
-            ],
-          },
-        ],
+        date: {
+          gte: startOfDay,
+          lte: endOfDay
+        },
+        status: {
+          in: [ReservationStatus.PENDING, ReservationStatus.SUCCESS]
+        },
       },
+      select: {
+        startTime: true,
+        endTime: true,
+      },
+      orderBy: {
+        startTime: 'asc'
+      }
     });
 
-    return { available: !existingReservation };
+    console.log('Server: Found reservations:', existingReservations);
+    return { existingReservations };
   } catch (error) {
     console.error("Error al verificar la disponibilidad de la cancha:", error);
     return {
-      error:
-        "No se pudo verificar la disponibilidad. Por favor, inténtalo de nuevo.",
+      error: "No se pudo verificar la disponibilidad. Por favor, inténtalo de nuevo.",
+      existingReservations: []
     };
   }
 }

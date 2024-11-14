@@ -39,7 +39,7 @@ import { Badge } from "@/components/ui/badge";
 import { useRouter } from "next/navigation";
 
 export default function ReservationTable() {
-  const router = useRouter()
+  const router = useRouter();
   const { data: session } = useSession();
   const [reservations, setReservations] = useState<
     {
@@ -54,6 +54,8 @@ export default function ReservationTable() {
       referencia: string | null;
       linkPago: string | null;
       updatedAt: Date;
+      totalPrice: number;
+      totalHours: number;
     }[]
   >([]);
   const [filters, setFilters] = useState<{
@@ -140,7 +142,7 @@ export default function ReservationTable() {
 
   const generatePaymentLinks = async () => {
     // Implement the logic to generate payment links for all reservations
-    router.push("")
+    router.push("");
   };
 
   const getStatusBadge = (status: ReservationStatus) => {
@@ -250,13 +252,7 @@ export default function ReservationTable() {
                 <TableCell>{`${reservation.startTime} - ${reservation.endTime}`}</TableCell>
                 <TableCell>{reservation.user.name}</TableCell>
                 <TableCell>{reservation.court.name}</TableCell>
-                <TableCell>
-                  {reservation.court.price *
-                    calculateDurationInHours(
-                      reservation.startTime,
-                      reservation.endTime
-                    )}
-                </TableCell>
+                <TableCell>{reservation.totalPrice.toFixed(2)}</TableCell>
                 <TableCell>{getStatusBadge(reservation.status)}</TableCell>
                 <TableCell>
                   <Input
