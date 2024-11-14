@@ -5,26 +5,31 @@ import { db } from "@/lib/db";
 export async function getReportData(
   reportType: string,
   month: string,
-  day: string,
-  year: string
+  year: string,
+  userId: string
 ) {
-  const selectedDate = new Date(
-    parseInt(year),
-    parseInt(month) - 1,
-    parseInt(day)
-  );
+  // Crear fechas de inicio y fin del mes
+  const startDate = new Date(parseInt(year), parseInt(month) - 1, 1);
+  const endDate = new Date(parseInt(year), parseInt(month), 0); // Último día del mes
 
   if (reportType === "bookings") {
     const reservations = await db.reservation.findMany({
       where: {
-        date: selectedDate,
+        date: {
+          gte: startDate,
+          lte: endDate,
+        },
+        status: "SUCCESS",
+        court: {
+          userId: userId
+        }
       },
       include: {
         court: true,
         user: true,
       },
       orderBy: {
-        startTime: "asc",
+        date: "asc",
       },
     });
     return reservations;
@@ -33,15 +38,21 @@ export async function getReportData(
   if (reportType === "income") {
     const reservations = await db.reservation.findMany({
       where: {
-        date: selectedDate,
+        date: {
+          gte: startDate,
+          lte: endDate,
+        },
         status: "SUCCESS",
+        court: {
+          userId: userId
+        }
       },
       include: {
         court: true,
         user: true,
       },
       orderBy: {
-        startTime: "asc",
+        date: "asc",
       },
     });
 
@@ -57,15 +68,30 @@ export async function getReportData(
   }
 
   if (reportType === "occupancy") {
-    const courts = await db.court.findMany();
+    const courts = await db.court.findMany({
+      where: {
+        userId: userId
+      }
+    });
+    
     const reservations = await db.reservation.findMany({
       where: {
-        date: selectedDate,
+        date: {
+          gte: startDate,
+          lte: endDate,
+        },
+        status: "SUCCESS",
+        court: {
+          userId: userId
+        }
       },
       include: {
         court: true,
       },
     });
+
+    const daysInMonth = endDate.getDate();
+    const totalHoursInMonth = daysInMonth * 24; // Total de horas disponibles en el mes
 
     return courts.map((court) => {
       const courtReservations = reservations.filter(
@@ -75,7 +101,7 @@ export async function getReportData(
         (acc, r) => acc + r.totalHours,
         0
       );
-      const occupancyRate = (totalHours / 24) * 100; // Asumiendo 24 horas disponibles
+      const occupancyRate = (totalHours / totalHoursInMonth) * 100;
 
       return {
         courtName: court.name,

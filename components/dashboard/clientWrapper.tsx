@@ -5,6 +5,7 @@ import NavButton from "@/components/dashboard/navbutton";
 import { Court } from "@prisma/client";
 import React, { useEffect, useState } from "react";
 import ListCourtsfilter from "./listCourtsfilter";
+import useStore from "@/hooks/state-modal";
 
 interface ClientWrapperProps {
   initialCanchas: Court[];
@@ -16,19 +17,21 @@ function ClientWrapper({ initialCanchas }: ClientWrapperProps) {
     <div className="">
       <div className="mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-12 gap-6">
-          {/* Sidebar con filtros */}
-          <Filtercourts
-            canchas={initialCanchas}
-            onFilter={setFilteredCanchas}
-            selectedDate={selectedDate}
-            setSelectedDate={setSelectedDate}
-          />
+          
+
+    
+            <Filtercourts
+              canchas={initialCanchas}
+              onFilter={setFilteredCanchas}
+              selectedDate={selectedDate}
+              setSelectedDate={setSelectedDate}
+            />
+        
 
           {/* Lista de canchas */}
           <ListCourtsfilter
             canchas={filteredCanchas}
             selectedDate={selectedDate}
-          
           />
         </div>
       </div>

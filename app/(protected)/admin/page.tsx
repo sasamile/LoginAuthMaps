@@ -34,12 +34,6 @@ function AdminPage() {
   async function fetchDashboardData(email: string) {
     try {
       const data = await getDashboardData(email);
-      console.log("Dashboard data:", data);
-      if (data.debug) {
-        console.log("Individual reservations:", data.debug);
-        const sum = data.debug.reduce((acc, curr) => acc + curr.totalPrice, 0);
-        console.log("Manual sum:", sum);
-      }
       setDashboardData(data);
     } catch (err) {
       setError("Failed to fetch dashboard data");
@@ -85,12 +79,16 @@ function AdminPage() {
   }
 
   return (
-    <div className="flex-1 space-y-4 p-8 pt-6">
-      <div className="flex items-center justify-between space-y-2">
-        <h2 className="text-3xl font-bold tracking-tight">Panel de Control</h2>
+    <div className="flex-1 p-4">
+      <div className="flex flex-col space-y-2">
+        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">
+          Panel de Control
+        </h2>
       </div>
-      <div className="space-y-4">
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+
+      <div className="space-y-4 mt-4">
+        {/* Cards de estadísticas */}
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
@@ -98,11 +96,12 @@ function AdminPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">
+              <div className="text-lg sm:text-xl md:text-2xl font-bold">
                 {dashboardData.totalReservations}
               </div>
             </CardContent>
           </Card>
+
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
@@ -110,11 +109,12 @@ function AdminPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">
+              <div className="text-lg sm:text-xl md:text-2xl font-bold">
                 ${dashboardData.totalIncome.toFixed(2)}
               </div>
             </CardContent>
           </Card>
+
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
@@ -122,11 +122,12 @@ function AdminPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">
+              <div className="text-lg sm:text-xl md:text-2xl font-bold">
                 {dashboardData.totalCourts}
               </div>
             </CardContent>
           </Card>
+
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
@@ -134,24 +135,31 @@ function AdminPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">
+              <div className="text-lg sm:text-xl md:text-2xl font-bold">
                 {dashboardData.occupancyRate}%
               </div>
             </CardContent>
           </Card>
         </div>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-          <Card className="col-span-4">
+
+        {/* Gráficos y Reservas Recientes */}
+        <div className="grid grid-cols-1 md:grid-cols-7 gap-3">
+          <Card className="col-span-1 md:col-span-4">
             <CardHeader>
-              <CardTitle>Resumen Mensual</CardTitle>
+              <CardTitle className="text-lg sm:text-xl">
+                Resumen Mensual
+              </CardTitle>
             </CardHeader>
             <CardContent className="pl-2">
               <Overview data={dashboardData.monthlyData} />
             </CardContent>
           </Card>
-          <Card className="col-span-3">
+
+          <Card className="col-span-1 md:col-span-3">
             <CardHeader>
-              <CardTitle>Reservas Recientes</CardTitle>
+              <CardTitle className="text-lg sm:text-xl">
+                Reservas Recientes
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <RecentBookings bookings={dashboardData.recentBookings} />

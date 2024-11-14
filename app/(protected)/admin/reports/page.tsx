@@ -19,9 +19,10 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CalendarIcon, FileTextIcon, DownloadIcon } from "lucide-react";
 import { getReportData } from "@/actions/report-actions";
-
+import { useCurrentUser } from "@/hooks";
 
 export default function ReportGenerator() {
+  const user = useCurrentUser();
   const [reportType, setReportType] = useState("");
   const [month, setMonth] = useState<string>("");
   const [year, setYear] = useState<string>(new Date().getFullYear().toString());
@@ -34,45 +35,45 @@ export default function ReportGenerator() {
   }, []);
 
   const styles = StyleSheet.create({
-    page: { 
+    page: {
       padding: 40,
-      backgroundColor: "#ffffff" 
+      backgroundColor: "#ffffff",
     },
     title: {
       fontSize: 24,
       marginBottom: 20,
-      textAlign: 'center',
+      textAlign: "center",
       color: "#1a365d",
-      fontWeight: 'bold',
+      fontWeight: "bold",
     },
     subtitle: {
       fontSize: 16,
       marginBottom: 15,
       color: "#2d3748",
     },
-    table: { 
-      width: "100%", 
-      borderStyle: "solid", 
+    table: {
+      width: "100%",
+      borderStyle: "solid",
       borderWidth: 1,
       borderColor: "#e2e8f0",
       marginTop: 20,
     },
-    tableRow: { 
+    tableRow: {
       flexDirection: "row",
       borderBottomWidth: 1,
       borderBottomColor: "#e2e8f0",
       minHeight: 35,
-      alignItems: 'center',
+      alignItems: "center",
     },
     tableHeader: {
       backgroundColor: "#f7fafc",
       width: "25%",
       padding: 8,
       fontSize: 12,
-      fontWeight: 'bold',
+      fontWeight: "bold",
       color: "#2d3748",
     },
-    tableCell: { 
+    tableCell: {
       width: "25%",
       padding: 8,
       fontSize: 10,
@@ -81,10 +82,10 @@ export default function ReportGenerator() {
     summary: {
       marginTop: 30,
       fontSize: 14,
-      fontWeight: 'bold',
+      fontWeight: "bold",
       color: "#2d3748",
-      textAlign: 'right',
-    }
+      textAlign: "right",
+    },
   });
 
   const ReportDocument = ({ data }: any) => (
@@ -96,11 +97,14 @@ export default function ReportGenerator() {
           {reportType === "occupancy" && "Reporte de Ocupación"}
         </Text>
         <Text style={styles.subtitle}>
-          Fecha: {new Date(parseInt(year), parseInt(month) - 1, parseInt(day)).toLocaleDateString('es-ES', { 
-            year: 'numeric', 
-            month: 'long', 
-            day: 'numeric' 
-          })}
+          Período:{" "}
+          {new Date(parseInt(year), parseInt(month) - 1).toLocaleDateString(
+            "es-ES",
+            {
+              year: "numeric",
+              month: "long",
+            }
+          )}
         </Text>
 
         {reportType === "bookings" && (
@@ -142,7 +146,9 @@ export default function ReportGenerator() {
                     {reservation.user.name} {reservation.user.lastname}
                   </Text>
                   <Text style={styles.tableCell}>{reservation.totalHours}</Text>
-                  <Text style={styles.tableCell}>${reservation.totalPrice}</Text>
+                  <Text style={styles.tableCell}>
+                    ${reservation.totalPrice}
+                  </Text>
                 </View>
               ))}
             </View>
@@ -163,7 +169,9 @@ export default function ReportGenerator() {
               <View style={styles.tableRow} key={item.courtName}>
                 <Text style={styles.tableCell}>{item.courtName}</Text>
                 <Text style={styles.tableCell}>{item.reservations}</Text>
-                <Text style={styles.tableCell}>{item.occupancyRate.toFixed(1)}%</Text>
+                <Text style={styles.tableCell}>
+                  {item.occupancyRate.toFixed(1)}%
+                </Text>
               </View>
             ))}
           </View>
@@ -175,18 +183,49 @@ export default function ReportGenerator() {
   const handleGenerateReport = async () => {
     try {
       setIsLoading(true);
-      const reportData = await getReportData(reportType, month, day, year);
+      if (!user?.id) {
+        throw new Error("No user found");
+      }
+  
+      // Verificar que todos los campos necesarios estén presentes
+      if (!reportType || !month || !year) {
+        throw new Error("Faltan campos requeridos");
+      }
+  
+      const reportData = await getReportData(reportType, month, year, user.id);
+  
+      // Verificar si hay datos
+      if (!reportData || (Array.isArray(reportData) && reportData.length === 0)) {
+        throw new Error("No hay datos para generar el reporte");
+      }
+  
+      // Generar el PDF
       const blob = await pdf(<ReportDocument data={reportData} />).toBlob();
-      const url = URL.createObjectURL(blob);
+      
+      // Crear el nombre del archivo
+      const fileName = `reporte-${reportType}-${month}-${year}.pdf`;
+      
+      // Crear y simular el clic en el enlace de descarga
       const link = document.createElement('a');
-      link.href = url;
-      link.download = `reporte-${reportType}-${day}-${month}-${year}.pdf`;
+      link.href = window.URL.createObjectURL(blob);
+      link.download = fileName;
+      
+      // Añadir el enlace al documento
       document.body.appendChild(link);
+      
+      // Simular clic y eliminar el enlace
       link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
+      
+      // Pequeña demora antes de limpiar
+      setTimeout(() => {
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(link.href);
+      }, 100);
+  
     } catch (error) {
-      console.error('Error generating PDF:', error);
+      console.error("Error al generar el reporte:", error);
+      // Aquí podrías añadir una notificación al usuario
+      alert(error instanceof Error ? error.message : "Error al generar el reporte");
     } finally {
       setIsLoading(false);
     }
@@ -200,14 +239,12 @@ export default function ReportGenerator() {
         <div className="space-y-6">
           <div className="flex items-center space-x-4 border-b pb-4">
             <FileTextIcon className="h-8 w-8 text-blue-500" />
-            <h1 className="text-3xl font-bold">
-              Generador de Reportes
-            </h1>
+            <h1 className="text-3xl font-bold">Generador de Reportes</h1>
           </div>
 
           <div className="grid gap-6">
             <div>
-              <label className="text-sm font-medium text-gray-700 mb-2 block">
+              <label className="text-sm font-medium mb-2 block">
                 Tipo de Reporte
               </label>
               <Select onValueChange={setReportType}>
@@ -224,7 +261,7 @@ export default function ReportGenerator() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                <label className="text-sm font-medium mb-2 block">
                   Mes
                 </label>
                 <Select onValueChange={setMonth}>
@@ -234,7 +271,9 @@ export default function ReportGenerator() {
                   <SelectContent>
                     {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
                       <SelectItem key={m} value={m.toString()}>
-                        {new Date(0, m - 1).toLocaleString("es", { month: "long" })}
+                        {new Date(0, m - 1).toLocaleString("es", {
+                          month: "long",
+                        })}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -242,30 +281,12 @@ export default function ReportGenerator() {
               </div>
 
               <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                <label className="text-sm font-medium mb-2 block">
                   Día
                 </label>
                 <Select onValueChange={setDay}>
                   <SelectTrigger>
                     <SelectValue placeholder="Seleccione el día" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Array.from({ length: 31 }, (_, i) => i + 1).map((d) => (
-                      <SelectItem key={d} value={d.toString()}>
-                        {d}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">
-                  Año
-                </label>
-                <Select onValueChange={setYear} defaultValue={year}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Seleccione el año" />
                   </SelectTrigger>
                   <SelectContent>
                     {Array.from(

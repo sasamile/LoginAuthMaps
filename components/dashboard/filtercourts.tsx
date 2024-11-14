@@ -4,20 +4,27 @@ import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Calendar } from "../ui/calendar";
 import { Court } from "@prisma/client";
 import { Input } from "../ui/input";
+import useStore from "@/hooks/state-modal";
 
 interface FilterFormProps {
   canchas: Court[];
   onFilter: (filtered: Court[]) => void;
-  selectedDate?: Date ;
-  setSelectedDate: (value: Date | undefined) => void; 
+  selectedDate?: Date;
+  setSelectedDate: (value: Date | undefined) => void;
 }
 
-function Filtercourts({ canchas, onFilter,selectedDate,setSelectedDate }: FilterFormProps) {
+function Filtercourts({
+  canchas,
+  onFilter,
+  selectedDate,
+  setSelectedDate,
+}: FilterFormProps) {
   // const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
   const [price, setPrice] = useState(100000);
   const [timeSlot, setTimeSlot] = useState("");
+  const { isToggled, toggle } = useStore();
 
   useEffect(() => {
     applyFilters();
@@ -73,94 +80,102 @@ function Filtercourts({ canchas, onFilter,selectedDate,setSelectedDate }: Filter
   };
 
   return (
-    <div className="col-span-12 md:col-span-4 lg:col-span-3 space-y-6 rounded-2xl ">
-      <Card className="bg-muted/50">
-        <CardHeader>
-          <CardTitle>Filtrar Disponibilidad</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="py-4">
-              <label className="block text-sm font-medium mb-2 dark:text-gray-300">
-                Nombre de la cancha
-              </label>
-              <Input
-                type="text"
-                placeholder="Nombre de la cancha"
-                value={name}
-                onChange={(e) => {
-                  setName(e.target.value);
-                }}
-              />
-            </div>
-
-            <label className="block text-sm font-medium mb-2">Fecha</label>
-            <Calendar
-              mode="single"
-              selected={selectedDate}
-              onSelect={(date) => {
-                setSelectedDate(date);
-              }}
-              className="rounded-md border p-2 xl w-full"
-            />
-
-            <div className="py-4">
-              <label className="block text-sm font-medium mb-2 dark:text-gray-300">
-                Dirección de la cancha
-              </label>
-              <Input
-                type="text"
-                placeholder="Dirección de la cancha"
-                value={address}
-                onChange={(e) => {
-                  setAddress(e.target.value);
-                }}
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-2">Horario</label>
-              <select
-                className="w-full rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white p-2"
-                value={timeSlot}
-                onChange={(e) => {
-                  setTimeSlot(e.target.value);
-                }}
-              >
-                <option value="">Cualquier horario</option>
-                <option value="morning">Mañana (8:00 - 12:00)</option>
-                <option value="afternoon">Tarde (12:00 - 18:00)</option>
-                <option value="evening">Noche (18:00 - 22:00)</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-2 dark:text-gray-300">
-                Precio máximo
-              </label>
-              <input
-                type="range"
-                className="w-full"
-                min="0"
-                max="100000"
-                step="5000"
-                value={price}
-                onChange={(e) => {
-                  setPrice(parseInt(e.target.value));
-                }}
-              />
-              <div className="flex justify-between text-sm text-gray-500 dark:text-gray-400">
-                <span>$0</span>
-                <span>$100.000</span>
+    <>
+      <div
+        className={`col-span-12 md:col-span-4 lg:col-span-3 space-y-6 rounded-2xl ${
+          !isToggled && "hidden"
+        }`}
+      >
+        <Card className="bg-muted/50">
+          <CardHeader>
+            <CardTitle>Filtrar Disponibilidad</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="py-4">
+                <label className="block text-sm font-medium mb-2 dark:text-gray-300">
+                  Nombre de la cancha
+                </label>
+                <Input
+                  type="text"
+                  placeholder="Nombre de la cancha"
+                  value={name}
+                  onChange={(e) => {
+                    setName(e.target.value);
+                  }}
+                />
               </div>
-              <div className="text-center font-medium text-sm mt-2 dark:text-gray-300">
-                ${price}
+
+              <label className="block text-sm font-medium mb-2">Fecha</label>
+              <Calendar
+                mode="single"
+                selected={selectedDate}
+                onSelect={(date) => {
+                  setSelectedDate(date);
+                }}
+                className="rounded-md border p-2 xl w-full"
+              />
+
+              <div className="py-4">
+                <label className="block text-sm font-medium mb-2 dark:text-gray-300">
+                  Dirección de la cancha
+                </label>
+                <Input
+                  type="text"
+                  placeholder="Dirección de la cancha"
+                  value={address}
+                  onChange={(e) => {
+                    setAddress(e.target.value);
+                  }}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  Horario
+                </label>
+                <select
+                  className="w-full rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white p-2"
+                  value={timeSlot}
+                  onChange={(e) => {
+                    setTimeSlot(e.target.value);
+                  }}
+                >
+                  <option value="">Cualquier horario</option>
+                  <option value="morning">Mañana (8:00 - 12:00)</option>
+                  <option value="afternoon">Tarde (12:00 - 18:00)</option>
+                  <option value="evening">Noche (18:00 - 22:00)</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2 dark:text-gray-300">
+                  Precio máximo
+                </label>
+                <input
+                  type="range"
+                  className="w-full"
+                  min="0"
+                  max="100000"
+                  step="5000"
+                  value={price}
+                  onChange={(e) => {
+                    setPrice(parseInt(e.target.value));
+                  }}
+                />
+                <div className="flex justify-between text-sm text-gray-500 dark:text-gray-400">
+                  <span>$0</span>
+                  <span>$100.000</span>
+                </div>
+                <div className="text-center font-medium text-sm mt-2 dark:text-gray-300">
+                  ${price}
+                </div>
               </div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+          </CardContent>
+        </Card>
+      </div>
+    </>
   );
 }
 
