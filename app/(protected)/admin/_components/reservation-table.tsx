@@ -141,8 +141,8 @@ export default function ReservationTable() {
   };
 
   const generatePaymentLinks = async () => {
-    // Implement the logic to generate payment links for all reservations
-    router.push("");
+    
+    router.push("https://dashboard.epayco.com/sell/createLink/link/0");
   };
 
   const getStatusBadge = (status: ReservationStatus) => {
